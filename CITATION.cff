@@ -1,0 +1,17 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: Feature engineering on iLog data
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - name: Knowdive - University of Trento
+    country: IT
+    city: Trento
+    website: 'https://knowdive.disi.unitn.it/'
+  - name: Datascientia
+    website: 'https://datascientia.eu/'
+    city: Trento
