@@ -9,16 +9,6 @@ from pathlib import Path
 from src.utils.utils import _intervalindex_to_columns, get_logger, radius_of_gyration, get_total_distance_covered, \
     centermost_point
 
-
-# def compute_windows_intervals(contribution: pd.DataFrame, window_size_mins: int) -> pd.IntervalIndex:
-#     timestamp = 'timestamp'
-#     start_interval = contribution[timestamp].dt.floor('S') - pd.Timedelta(minutes=int(window_size_mins / 2))
-#     end_interval = contribution[timestamp].dt.floor('S') + pd.Timedelta(minutes=int(window_size_mins / 2))
-#     intervals = pd.IntervalIndex.from_arrays(start_interval, end_interval, closed='left')
-#     # if closed is change, remember to do the same in every place tha interval is used
-#     assert not intervals.is_overlapping
-#     return intervals
-
 def compute_windows_intervals(contribution: pd.DataFrame, window_size_mins: int) -> pd.IntervalIndex:
     timestamp_col = 'timestamp'
 
@@ -519,20 +509,11 @@ if __name__ == '__main__':
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('-i', '--input',
-                        help='path to the sensor file (parquet)',
-                        default='/Users/munkhdelger/Knowdive/feature-engineering/data/raw/it/batterycharge.parquet',
-                        )
-    parser.add_argument('-o', '--output',
-                        help='output file (csv or parquet). If not given, it will be generated.',
-                        required=False,
-                        default='/Users/munkhdelger/Knowdive/feature-engineering/data/processed/it/batterycharge.csv')
-    parser.add_argument('-l', '--logs', help='path to logging file',
-                        default='/Users/munkhdelger/Knowdive/feature-engineering/logs/feature.log')
-    parser.add_argument('-t', '--window-size',
-                        type=int,
-                        default=30,
-                        help='Size of the time window (minutes) to aggregate the sensors')
+    parser.add_argument('-i', '--input')
+    parser.add_argument('-o', '--output')
+    parser.add_argument('-l', '--logs',
+                        help='path to logging file')
+    parser.add_argument('-t', '--window-size', type=int)
     args = parser.parse_args()
 
     logger = get_logger(os.path.basename(__file__), args.logs)

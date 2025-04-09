@@ -38,16 +38,9 @@ if __name__ == '__main__':
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('-i', '--input',
-                        help='path to crep',
-                        default='/Users/munkhdelger/Knowdive/feature-engineering/data/CREP',
-                        )
-    parser.add_argument('-o', '--output',
-                        help='path to raw .',
-                        required=False,
-                        default='/Users/munkhdelger/Knowdive/feature-engineering/data/raw')
-    parser.add_argument('-l', '--logs', help='path to logging file',
-                        default='/Users/munkhdelger/Knowdive/feature-engineering/logs/load.log')
+    parser.add_argument('-i', '--input')
+    parser.add_argument('-o', '--output')
+    parser.add_argument('-l', '--logs')
     args = parser.parse_args()
 
     logger = get_logger(os.path.basename(__file__), args.logs)

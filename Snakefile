@@ -18,20 +18,17 @@ configfile: "config/config.yaml"
 sensors = config['datasets']
 countries = config['countries']
 
-print(sensors)
-print(countries)
-
 # ignoring non-sensor datasets
 sensors = [ds for ds in sensors if ds not in files_to_ignore]
 
-# Get countries with raw data available
+# Filter countries existing in repo
 existing_countries = []
 for country in countries:
     country_data_path = Path(f"data/raw/{country}")
     if country_data_path.exists():
         existing_countries.append(country)
 
-# Get sensors available
+# Filter sensors existing in repo
 existing_sensors = []
 for country in existing_countries:
     for sensor in sensors:
