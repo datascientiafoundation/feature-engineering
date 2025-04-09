@@ -377,11 +377,12 @@ def main(input_path: Path, output_path: Path, window_size_mins: int):
     start = time.time()
     logger.info('Loading dataset...')
     sensor = pd.read_parquet(input_path)
-
     logger.info(f'Full dataset length: {len(sensor)}')
 
-    # TODO check format first
     sensor['timestamp'] = pd.to_datetime(sensor['timestamp'], format='%m%d%H%M%S%f')
+    sensor['timestamp'] = sensor['timestamp'].dt.tz_localize(None)  # Removes the timezone
+    sensor['timestamp'] = sensor['timestamp'].astype('datetime64[ns]')
+
     logger.info(f'Timestamp format changed ')
     if 'day' in sensor.columns:
         sensor.pop('day')

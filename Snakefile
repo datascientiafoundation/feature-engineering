@@ -3,47 +3,23 @@ from pathlib import Path
 from snakemake.io import expand
 
 
-files_to_ignore = ['contributlionanswers',
-                   'timediariesconfirmation',
-                   'contributionquestions',
-                   'tasksconfirmation',
-                   'timediaries',
-                   'location_poi',
-                   'survey',
+files_to_ignore = ['survey',
                    'timediary']
 
 configfile: "config/config.yaml"
 
 
 sensors = config['datasets']
-countries = config['countries']
 
-# ignoring non-sensor datasets
 sensors = [ds for ds in sensors if ds not in files_to_ignore]
-
-# Filter countries existing in repo
-existing_countries = []
-for country in countries:
-    country_data_path = Path(f"data/raw/{country}")
-    if country_data_path.exists():
-        existing_countries.append(country)
-
-# Filter sensors existing in repo
-existing_sensors = []
-for country in existing_countries:
-    for sensor in sensors:
-        path = Path(f"data/raw/{country}/{sensor}.parquet")
-        if path.exists():
-            existing_sensors.append(sensor)
-
 
 rule process_feature:
     input:
-        "data/raw/{country}/{ds}.parquet"
+        "data/raw/{ds}.parquet"
     output:
-        "data/processed/{country}/{ds}.csv"
+        "data/processed/{ds}.csv"
     log:
-        "logs/{country}_{ds}.log"
+        "logs/{ds}.log"
     params:
         freq=30
     shell:
@@ -52,6 +28,6 @@ rule process_feature:
 
 rule all:
     input:
-        expand("data/processed/{country}/{ds}.csv",country=existing_countries,ds=existing_sensors)
+        expand("data/processed/{ds}.csv", ds=sensors)
 
 

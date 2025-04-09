@@ -2,6 +2,7 @@
 .snakemake
 *.snakemake_timestamp
 __pycache__/
+.DS_Store
 
 logs/**
 !logs/**/

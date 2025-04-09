@@ -1,13 +1,3 @@
-countries:
- - cn
- - dk
- - in
- - it
- - mn
- - mx
- - py
- - uk
-
 datasets:
  - accelerometer
  - accelerometeruncalibrated
@@ -41,8 +31,8 @@ datasets:
  - screen
  - stepcounter
  - stepdetector
- - survey
- - timediary
+# - survey
+# - timediary
  - touch
  - wifi
  - wifinetworks

@@ -1,7 +1,8 @@
 
-# Feature Engineering
+# DiversityOne Feature Engineering
 
 Dataset info:
+
 https://datascientiafoundation.github.io/LivePeople-ws/datasets/
 
 ## Requirements
@@ -58,7 +59,7 @@ pip  install  snakemake
 ## Data preparation
 
 Download the dataset and save it in the appropriate folder:
-   - If the dataset follows the **flattened structure**(sensors), save it in the `data/raw` folder using the corresponding country’s 2-digit country code (e.g., `data/raw/it/` for Italy).
+   - If the dataset follows the **flattened structure**(sensors), save it in the `data/raw` folder.
    
    - If the dataset follows the **Hierarchical structure** (CREP), save it in the `data/CREP` folder. The datasets in CREP format need to be flattened first by following script: 
 
@@ -66,7 +67,7 @@ Download the dataset and save it in the appropriate folder:
 
 
 ## Workflow Description
-The Snakemake workflow defines rules to process datasets. The workflow assumes that all datasets are located in the corresponding country code folder inside [raw](data/raw). It is designed to run all sensors from all countries.
+The Snakemake workflow defines rules to process datasets. The workflow assumes that all datasets are located in the [raw](data/raw) folder. It is designed to run all sensors at once.
 
     snakemake all --cores 1
 
@@ -75,14 +76,14 @@ This rule processes all datasets found in the [raw](data/raw) folder and outputs
 
 
 ### Configuration
-**config.yaml**: Contains a list of available datasets and countries. The names are strict; therefore, sensors defined here will be processed only if the corresponding dataset is available.
+**config.yaml**: Contains a list of available datasets. The names are strict; therefore, sensors defined here will be processed only if the corresponding dataset is available.
 
 ## Process single dataset
 
-You can process a single dataset using the [src/feature.py](src/feature.py) script directly:
+You can process a single dataset using the [src/feature.py](src/feature) script directly:
 
-    python -m src.feature -i data/raw/<COUNTRY>/<SENSOR>.parquet -o data/processed/<COUNTRY>/<SENSOR>.csv -l logs/<COUNTRY>/<SENSOR>.log -t <FREQ>
+    python -m src.feature -i data/raw/<SENSOR>.parquet -o data/processed/<SENSOR>.csv -l logs/<SENSOR>.log -t <FREQ>
 
 Example: 
 
-    python -m src.feature -i data/raw/it/accelerometer.parquet -o data/processed/it/accelerometer.csv -l logs/it_accelerometer.log -t 30
+    python -m src.feature -i data/raw/accelerometer.parquet -o data/processed/accelerometer.csv -l logs/accelerometer.log -t 30
