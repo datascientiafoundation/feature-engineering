@@ -2,6 +2,7 @@ from pathlib import Path
 
 from snakemake.io import expand
 
+
 files_to_ignore = ['contributlionanswers',
                    'timediariesconfirmation',
                    'contributionquestions',
@@ -11,22 +12,32 @@ files_to_ignore = ['contributlionanswers',
                    'survey',
                    'timediary']
 
-with open("config/datasets.txt") as f:
-    DATASETS = [line.strip() for line in f if line.strip()]
-with open("config/countries.txt") as f:
-    countries = [line.strip() for line in f if line.strip()]
-
-filtered_datasets = [ds for ds in DATASETS if ds not in files_to_ignore]
+configfile: "config/config.yaml"
 
 
-rule load_datasets:
-    input:
-        crep="data/CREP",
-        raw="data/raw"
-    log:
-        "logs/load.log"
-    shell:
-        "python -m src.load -i {input.crep} -o {input.raw} -l {log}"
+sensors = config['datasets']
+countries = config['countries']
+
+print(sensors)
+print(countries)
+
+# ignoring non-sensor datasets
+sensors = [ds for ds in sensors if ds not in files_to_ignore]
+
+# Get countries with raw data available
+existing_countries = []
+for country in countries:
+    country_data_path = Path(f"data/raw/{country}")
+    if country_data_path.exists():
+        existing_countries.append(country)
+
+# Get sensors available
+existing_sensors = []
+for country in existing_countries:
+    for sensor in sensors:
+        path = Path(f"data/raw/{country}/{sensor}.parquet")
+        if path.exists():
+            existing_sensors.append(sensor)
 
 
 rule process_feature:
@@ -42,6 +53,8 @@ rule process_feature:
         "python -m src.feature -i {input} -o {output} -l {log} -t {params.freq}"
 
 
-rule process_all_features:
+rule all:
     input:
-        expand("data/processed/{country}/{ds}.csv", country=countries, ds=filtered_datasets)
+        expand("data/processed/{country}/{ds}.csv",country=existing_countries,ds=existing_sensors)
+
+

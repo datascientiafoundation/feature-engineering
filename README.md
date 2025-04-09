@@ -28,7 +28,7 @@ conda activate feature_env
 To install Snakemake, use the following command:
 
 ```bash
-conda install -c conda-forge snakemake
+pip  install  snakemake
 ```
 
 ## Repository structure
@@ -36,8 +36,7 @@ conda install -c conda-forge snakemake
 ```
 .
 ├── config/
-│   ├── countries.txt        # Contains a list of countries (2-letter country codes).
-│   └── datasets.txt         # Contains a list of available datasets.
+│   ├── config.yaml        # Contains a list of countries and sensors 
 ├── data/
 │   ├── CREP/                # Datasets following the CREP structure (Hierarchical).
 │   ├── raw/                 # Raw datasets, organized by country code.
@@ -59,26 +58,25 @@ conda install -c conda-forge snakemake
 
 ## Data preparation
 
-**Download the dataset** and save it in the appropriate folder:
+Download the dataset and save it in the appropriate folder:
    - If the dataset follows the **flattened structure**(sensors), save it in the `data/raw` folder using the corresponding country’s 2-digit country code (e.g., `data/raw/it/` for Italy).
-   - If the dataset follows the **CREP structure** (Hierarchical), save it in the `data/CREP` folder. The datasets in CREP format need to be processed first by the `load_datasets` rule before they can be used for feature extraction.
+   
+   - If the dataset follows the **Hierarchical structure** (CREP), save it in the `data/CREP` folder. The datasets in CREP format need to be flattened first by following script: 
+
+		    python -m src.load -i data/CREP -o data/raw -l logs/load.log
 
 
 ## Workflow Description
-The Snakemake workflow defines rules to process datasets:
+The Snakemake workflow defines rules to process datasets. The workflow assumes that all datasets are located in the corresponding country code folder inside [raw](data/raw). It is designed to run all sensors from all countries.
 
-**load_datasets**: This rule loads raw datasets from the [CREP](data/CREP) folder into the [raw](data/raw) folder.
+    snakemake all --cores 1
 
-    snakemake load_datasets --cores 1
+This rule processes all datasets found in the [raw](data/raw) folder and outputs the processed features in .csv format to the [processed](data/processed) folder.
 
-**process_all_features**: This rule processes all datasets found in the [raw](data/raw) folder and outputs the processed features in .csv format to the [processed](data/processed) folder.
 
-    snakemake process_all_features --cores 1
 
-### Configuration Files
-**datasets.txt**: Contains a list of available datasets.
-
-**countries.txt**: Contains a list of countries (2-letter country codes).
+### Configuration
+**config.yaml**: Contains a list of available datasets and countries. The names are strict; therefore, sensors defined here will be processed only if the corresponding dataset is available.
 
 ## Process single dataset
 
