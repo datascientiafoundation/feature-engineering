@@ -1,8 +1,7 @@
 
-# DiversityOne Feature Engineering
+#Feature Engineering
 
 Dataset info:
-
 https://datascientiafoundation.github.io/LivePeople-ws/datasets/
 
 ## Requirements
