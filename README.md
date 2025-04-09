@@ -1,3 +1,4 @@
+
 # DiversityOne Feature Engineering
 
 Dataset info:
@@ -6,8 +7,14 @@ https://datascientiafoundation.github.io/LivePeople-ws/datasets/
 
 ## Requirements
 
-- Python 3.9.7
+- Python 3.9
+- Snakemake (for workflow automation)
 
+To install Snakemake, use the following command:
+
+```bash
+conda install -c conda-forge snakemake
+```
 
 ## Installation
 
@@ -54,39 +61,31 @@ conda activate feature_env
 
 **Download the dataset** and save it in the appropriate folder:
    - If the dataset follows the **flattened structure**(sensors), save it in the `data/raw` folder using the corresponding country’s 2-digit country code (e.g., `data/raw/it/` for Italy).
-   - If the dataset follows the **CREP structure** ((Hierarchical)), save it in the `data/CREP` folder. The datasets in CREP format need to be processed first by the `load_datasets` rule before they can be used for feature extraction.
-
-
-## Process single dataset
-
-You can process a single dataset using the src/feature.py script directly:
-
-```python -m src.feature -i data/raw/<COUNTRY>/<SENSOR>.parquet -o data/processed/<COUNTRY>/<SENSOR>.csv -l logs/<COUNTRY>/<SENSOR>.log -t <FREQ>```
-Example: 
-```python -m src.feature -i data/raw/it/accelerometer.parquet) -o data/processed/it/accelerometer.csv -l logs/it_accelerometer.log -t 30```
-
+   - If the dataset follows the **CREP structure** (Hierarchical), save it in the `data/CREP` folder. The datasets in CREP format need to be processed first by the `load_datasets` rule before they can be used for feature extraction.
 
 
 ## Workflow Description
 The Snakemake workflow defines rules to process datasets:
 
-**load_datasets: This rule loads raw datasets from the [CREP](data/CREP) folder into the [raw](data/raw) folder.
+**load_datasets**: This rule loads raw datasets from the [CREP](data/CREP) folder into the [raw](data/raw) folder.
 
-```snakemake load_datasets --cores 1```
+    snakemake load_datasets --cores 1
 
-**process_all_features: This rule processes all datasets found in the [raw](data/raw) folder and outputs the processed features in .csv format to the [processed](data/processed) folder.
+**process_all_features**: This rule processes all datasets found in the [raw](data/raw) folder and outputs the processed features in .csv format to the [processed](data/processed) folder.
 
-```snakemake process_all_features --cores 1```
+    snakemake process_all_features --cores 1
 
 ### Configuration Files
-datasets.txt: Contains a list of available datasets.
+**datasets.txt**: Contains a list of available datasets.
 
-countries.txt: Contains a list of countries (2-letter country codes).
+**countries.txt**: Contains a list of countries (2-letter country codes).
 
 ## Process single dataset
 
-You can process a single dataset using the src/feature.py script directly:
+You can process a single dataset using the [src/feature.py](src/feature) script directly:
 
-```python -m src.feature -i data/raw/<COUNTRY>/<SENSOR>.parquet -o data/processed/<COUNTRY>/<SENSOR>.csv -l logs/<COUNTRY>/<SENSOR>.log -t <FREQ>```
+    python -m src.feature -i data/raw/<COUNTRY>/<SENSOR>.parquet -o data/processed/<COUNTRY>/<SENSOR>.csv -l logs/<COUNTRY>/<SENSOR>.log -t <FREQ>
+
 Example: 
-```python -m src.feature -i data/raw/it/accelerometer.parquet) -o data/processed/it/accelerometer.csv -l logs/it_accelerometer.log -t 30```
+
+    python -m src.feature -i data/raw/it/accelerometer.parquet -o data/processed/it/accelerometer.csv -l logs/it_accelerometer.log -t 30
