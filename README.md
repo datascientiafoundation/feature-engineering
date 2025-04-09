@@ -79,7 +79,7 @@ This rule processes all datasets found in the [raw](data/raw) folder and outputs
 
 ## Process single dataset
 
-You can process a single dataset using the [src/feature.py](src/feature) script directly:
+You can process a single dataset using the [src/feature.py](src/feature.py) script directly:
 
     python -m src.feature -i data/raw/<COUNTRY>/<SENSOR>.parquet -o data/processed/<COUNTRY>/<SENSOR>.csv -l logs/<COUNTRY>/<SENSOR>.log -t <FREQ>
 
