@@ -10,12 +10,6 @@ https://datascientiafoundation.github.io/LivePeople-ws/datasets/
 - Python 3.9
 - Snakemake (for workflow automation)
 
-To install Snakemake, use the following command:
-
-```bash
-conda install -c conda-forge snakemake
-```
-
 ## Installation
 
 Clone the repository
@@ -29,6 +23,12 @@ Create a new environment with [Conda](https://docs.conda.io/en/latest/)
 ```bash
 conda env create -f environment.yml
 conda activate feature_env
+```
+
+To install Snakemake, use the following command:
+
+```bash
+conda install -c conda-forge snakemake
 ```
 
 ## Repository structure
