@@ -1,5 +1,13 @@
 
-# DiversityOne Feature Engineering
+# Feature Engineering
+
+
+
+All features in this repository are extracted over **fixed-length time intervals**.
+
+Each user's data is divided into consecutive, non-overlapping time windows (e.g., 30-minute segments), and features are computed **independently for each interval**. This time-based aggregation applies to all supported sensor types (e.g., accelerometer, screen, wifi, etc.).
+
+This design allows for temporal analysis and supports machine learning models that consider behavioral changes over time.
 
 Dataset info:
 
@@ -28,7 +36,7 @@ conda activate feature_env
 To install Snakemake, use the following command:
 
 ```bash
-pip  install  snakemake
+pip install snakemake
 ```
 
 ## Repository structure
@@ -59,20 +67,22 @@ pip  install  snakemake
 ## Data preparation
 
 Download the dataset and save it in the appropriate folder:
-   - If the dataset follows the **flattened structure**(sensors), save it in the `data/raw` folder.
+   - If the dataset follows the **flattened structure**, save it in the `data/raw` folder.
    
-   - If the dataset follows the **Hierarchical structure** (CREP), save it in the `data/CREP` folder. The datasets in CREP format need to be flattened first by following script: 
-
-		    python -m src.load -i data/CREP -o data/raw -l logs/load.log
+   - If the dataset follows the **Hierarchical structure**, save it in the `data/CREP` folder. The datasets in CREP format need to be flattened first by following script: 
+```bash
+ python -m src.load -i data/CREP -o data/raw -l logs/load.log
+```
 
 
 ## Workflow Description
 The Snakemake workflow defines rules to process datasets. The workflow assumes that all datasets are located in the [raw](data/raw) folder. It is designed to run all sensors at once.
 
-    snakemake all --cores 1
+```bash
+snakemake all --cores 1
+```
 
 This rule processes all datasets found in the [raw](data/raw) folder and outputs the processed features in .csv format to the [processed](data/processed) folder.
-
 
 
 ### Configuration
@@ -81,9 +91,84 @@ This rule processes all datasets found in the [raw](data/raw) folder and outputs
 ## Process single dataset
 
 You can process a single dataset using the [src/feature.py](src/feature) script directly:
-
-    python -m src.feature -i data/raw/<SENSOR>.parquet -o data/processed/<SENSOR>.csv -l logs/<SENSOR>.log -t <FREQ>
-
+```bash
+python -m src.feature -i data/raw/<SENSOR>.parquet -o data/processed/<SENSOR>.csv -l logs/<SENSOR>.log -t <FREQ>
+```
 Example: 
+```bash
+python -m src.feature -i data/raw/accelerometer.parquet -o data/processed/accelerometer.csv -l logs/accelerometer.log -t 30
+```
 
-    python -m src.feature -i data/raw/accelerometer.parquet -o data/processed/accelerometer.csv -l logs/accelerometer.log -t 30
+## Supported Datasets
+
+The following sensor datasets are currently supported for feature extraction:
+
+-   `accelerometer`
+   
+-   `accelerometeruncalibrated`
+    
+-   `activities`
+    
+-   `airplanemode`
+    
+-   `ambienttemperature`
+    
+-   `applications`
+    
+-   `batterycharge`
+    
+-   `batterylevel`
+    
+-   `bluetooth`
+    
+-   `cellularnetwork`
+    
+-   `doze`
+    
+-   `geomagneticrotationvector`
+    
+-   `gravity`
+    
+-   `gyroscope`
+    
+-   `gyroscopeuncalibrated`
+    
+-   `headsetplug`
+    
+-   `light`
+    
+-   `linearacceleration`
+    
+-   `location`
+    
+-   `magneticfield`
+    
+-   `magneticfielduncalibrated`
+    
+-   `music`
+    
+-   `notification`
+    
+-   `orientation`
+    
+-   `pressure`
+    
+-   `proximity`
+    
+-   `relativehumidity`
+    
+-   `ringmode`
+    
+-   `rotationvector`
+    
+-   `screen`
+    
+-   `stepcounter`
+    
+-   `stepdetector`
+    
+-   `touch`
+    
+-   `wifi`
+    
+-   `wifinetworks`
