@@ -67,7 +67,7 @@ def get_x(path_to_sensors) -> pd.DataFrame:
     # assert all(features_union[['latitude', 'longitude']].nona())
     intervals = pd.Series(features_union.index.get_level_values(2))
     features_union['hour'] = intervals.apply(lambda x: x.mid.hour).values
-    # source http://ianlondon.github.io/blog/encoding-cyclical-features-24hour-time/
+    # source https://ianlondon.github.io/posts/encoding-cyclical-features-24-hour-time/
     features_union['sin_hour'] = np.sin(2 * np.pi * features_union.hour / 24)
     features_union['cos_hour'] = np.cos(2 * np.pi * features_union.hour / 24)
     features_union['day_period'] = features_union.hour.apply(determine_day_period)
