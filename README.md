@@ -74,7 +74,7 @@ Download the dataset (the datasets can be requested on the [Datascientia platfor
    
    - If the dataset follows the **flattened structure**, save it in the `data/raw` folder.
    
-   - If the dataset follows the **Hierarchical structure**, save it in the `data/CREP` folder. The datasets in CREP format need to be flattened first by following script:
+   - If the dataset follows the **Hierarchical structure** (as retrieved from the catalog), save it in the `data/CREP` folder. Datasets in this structure need to be flattened first by running the following script:
 
 ```bash
  python -m src.load -i data/CREP -o data/raw -l logs/load.log
@@ -125,6 +125,13 @@ snakemake all --cores 1
 ```bash
 python -m src.feature -i data/raw/<SENSOR>.parquet -t data/interim/timediary.csv -o data/interim/<SENSOR>.csv -l logs/<SENSOR>.log -f <FREQ> -ti False
 ```
+
+### Cyclical Feature Encoding
+
+Cyclical features, such as the hour of the day, are also added to the dataset in order to capture the circular nature of time. This encoding technique helps models understand that certain times are close to others, such as 23:00 being close to 00:00. By using sine and cosine transformations, these features are represented in a way that preserves their cyclical nature, which improves the performance of models that involve time-based patterns.
+
+Source: [Encoding Cyclical Features](http://ianlondon.github.io/blog/encoding-cyclical-features-24hour-time/)
+
 
 ## Supported Datasets and Extracted Features
 
