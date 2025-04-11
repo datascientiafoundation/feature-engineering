@@ -1,4 +1,5 @@
 
+
 # Feature Engineering
 
 This repository contains the code to generate features from the raw data available on the [LivePeople data catalog](https://datascientiafoundation.github.io/LivePeople) powered by [Datascientia](https://datascientia.eu/). The following code has been tested on [DivesityOne dataset](https://datascientia.eu/projects/diversityone/).
@@ -43,23 +44,27 @@ pip install snakemake
 ```
 .
 ├── config/
-│   ├── config.yaml        # Contains a list of countries and sensors 
+│   ├── config.yaml              # Contains a list of countries and sensors 
 ├── data/
-│   ├── CREP/                # Datasets following the CREP structure (Hierarchical).
-│   ├── raw/                 # Raw datasets, organized by country code.
-│   └── processed/           # Processed datasets with engineered features.
+│   ├── CREP/                    # Datasets following the CREP structure (Hierarchical)
+│   ├── interim/                 # Intermediate files, single sensor features
+│   ├── raw/                     # Raw datasets
+│   └── processed/               # Processed datasets, aggregated features
 ├── logs/
 ├── src/
 │   ├── utils/
-│       ├── appcategories.csv  # Contains mapping or metadata related to application categories used in the datasets.
-│       ├── utils.py           # Utility functions for the project.
-│   ├── feature.py           # Script for performing feature engineering on a single dataset.
-│   └── load.py              # Script for loading and potentially transforming CREP datasets.
+│   │   ├── appcategories.csv    # Contains mapping related to application categories
+│   │   └── utils.py             # Utility functions for the project
+│   ├── config.py                # Handles loading or managing configuration settings
+│   ├── contribution.py          # Logic related to computing or managing user contributions
+│   ├── feature.py               # Script for performing feature engineering on a single dataset
+│   ├── join_features.py         # Script for merging/joining features from different sensors
+│   └── load.py                  # Script for loading datasets
 ├── CITATION.cff
-├── environment.yml          # Conda environment configuration file.
-├── LICENCE                  # Contains the license information for the project (e.g., MIT License).
+├── environment.yml              # Conda environment configuration file
+├── LICENCE                      # Contains the license information for the project (e.g., MIT License)
 ├── README.md
-└── Snakefile                # Defines the workflow for processing datasets.
+└── Snakefile                    # Defines the workflow for processing datasets
 
 ```
 
@@ -78,100 +83,209 @@ Download the dataset (the datasets can be requested on the [Datascientia platfor
 
 ## Workflow Description
 
-The Snakemake workflow defines rules to process datasets. The workflow assumes that all datasets are located in the [raw](data/raw) folder. It is designed to run all sensors at once.
+The Snakemake workflow orchestrates the end-to-end processing of datasets located in the [data/raw](data/raw) directory. The pipeline proceeds through the following stages:
 
+1.  **Process Time Diary**  
+    The workflow begins by processing the time diary data, which defines valid activity intervals for each user.
+    
+2.  **Process Single Sensors**  
+    Using the time intervals extracted from the processed timediary, each sensor dataset is processed individually to extract features. The resulting features are stored in the [data/interim](data/interim) directory.
+    
+3.  **Join Features**  
+    Finally, all single-sensor features are joined based on their timestamps, resulting in a unified, time-aligned dataset saved in the [data/processed](data/processed) directory.
+    
+To run the entire workflow, execute the following command:
 ```bash
 snakemake all --cores 1
 ```
 
-This rule processes all datasets found in the [raw](data/raw) folder and outputs the processed features in .csv format to the [processed](data/processed) folder.
-
-
 ### Configuration
 
-**config.yaml**: Contains a list of available datasets. The names are strict; therefore, sensors defined here will be processed only if the corresponding dataset is available.
+**config.yaml**: 
+ - Contains a list of available datasets. The names are strict; therefore, sensors defined here will be processed only if the corresponding dataset is available. 
+ - Configuration for timediary included feature generation
 
 ## Process single dataset
-
 You can process a single dataset using the [src/feature.py](src/feature) script directly:
 ```bash
-python -m src.feature -i data/raw/<SENSOR>.parquet -o data/processed/<SENSOR>.csv -l logs/<SENSOR>.log -t <FREQ>
+python -m src.feature -i data/raw/<SENSOR>.parquet -t data/interim/timediary.csv -o data/interim/<SENSOR>.csv -l logs/<SENSOR>.log -f <FREQ> -ti True
 ```
 Example: 
 ```bash
-python -m src.feature -i data/raw/accelerometer.parquet -o data/processed/accelerometer.csv -l logs/accelerometer.log -t 30
+python -m src.feature -i data/raw/accelerometer.parquet -t data/interim/timediary.csv -o data/interim/accelerometer.csv -l logs/accelerometer.log -f 30 -ti True
 ```
 
-## Supported Datasets
+ ## Workflow without timediary
+if you want to process datasets without timediary invervals, you can change the **timediary** parameter in [config/config.yaml](config/config.yaml) to **False**. Then the run the workflow as: 
+```bash
+snakemake all --cores 1
+```
 
-The following sensor datasets are currently supported for feature extraction:
+#### To process single datset without timediary: 
+```bash
+python -m src.feature -i data/raw/<SENSOR>.parquet -t data/interim/timediary.csv -o data/interim/<SENSOR>.csv -l logs/<SENSOR>.log -f <FREQ> -ti False
+```
 
--   `accelerometer`
-   
--   `accelerometeruncalibrated`
+## Supported Datasets and Extracted Features
+
+#### `accelerometer` 
+- `x_min`, `x_max`, `x_mean`, `x_std`
+- `y_min`, `y_max`, `y_mean`, `y_std`
+- `z_min`, `z_max`, `z_mean`, `z_std`
+- `magnitude_min`, `magnitude_max`, `magnitude_mean`, `magnitude_std`
+ 
+####   `accelerometeruncalibrated`
+- `x_min`, `x_max`, `x_mean`, `x_std`
+- `y_min`, `y_max`, `y_mean`, `y_std`
+- `z_min`, `z_max`, `z_mean`, `z_std`
+- `xunc_min`, `xunc_max`, `xunc_mean`, `xunc_std`
+- `yunc_min`, `yunc_max`, `yunc_mean`, `yunc_std`
+- `zunc_min`, `zunc_max`, `zunc_mean`, `zunc_std`
+- `magnitude_min`, `magnitude_max`, `magnitude_mean`, `magnitude_std`
     
--   `activities`
+####  `activities`
+- `activity_Running` ,`activity_Unknown`, `activity_Tilting`, `activity_OnBicycle`, `activity_InVehicle`, `activity_Still`, `activity_Walking`, `activity_OnFoot`,
     
--   `airplanemode`
+####   `airplanemode`
+ - `airplanemode_True`, `airplanemode_False`
     
--   `ambienttemperature`
+####   `ambienttemperature`
+- `min`, `std`, `min`, `max`
     
--   `applications`
+####   `applications`
+- `app_category_nunique`
+- `[application groups]`
+- `app_nunique`, `app_entropy_basic` 
+
+####   `batterycharge`
+- `battery_charging_ac`, `battery_no_charging`, `battery_charging_unknown`
     
--   `batterycharge`
+####   `batterylevel`
+- `battery_timestamp_first`, `battery_timestamp_last`, `battery_level_first`, `battery_level_last`, `battery_scale_mean`, `battery_delta` 
     
--   `batterylevel`
+####   `bluetooth`
+- `bluetooth_addr_nuinque`, `bluetooth_mean`, `bluetooth_min`, `bluetooth_max`, `bluetooth_std`, `bluetooth_var`, `bluetooth_entropy_basic,`
     
--   `bluetooth`
+####   `cellularnetwork`
+- `cellular_lte_mean`, `cellular_lte_min`, `cellular_lte_max`, `cellular_lte_std`,
+- `cellular_lte_entropy_basic`, `cellular_lte_num_of_devices`
     
--   `cellularnetwork`
+####   `doze`
+- `doze_True`, `doze_False`
     
--   `doze`
+####   `geomagneticrotationvector`
+- `x_min`, `x_max`, `x_mean`, `x_std`
+- `y_min`, `y_max`, `y_mean`, `y_std`
+- `z_min`, `z_max`, `z_mean`, `z_std`
+- `magnitude_min`, `magnitude_max`, `magnitude_mean`, `magnitude_std`
+- `accuracy_min`, `accuracy_max`, `accuracy_mean`, `accuracy_std`
+- `scalar_min`, `scalar_max`, `scalar_mean`, `scalar_std`
     
--   `geomagneticrotationvector`
+####   `gravity`
+- `x_min`, `x_max`, `x_mean`, `x_std`
+- `y_min`, `y_max`, `y_mean`, `y_std`
+- `z_min`, `z_max`, `z_mean`, `z_std`
+- `magnitude_min`, `magnitude_max`, `magnitude_mean`, `magnitude_std`
     
--   `gravity`
+####   `gyroscope`
+- `x_min`, `x_max`, `x_mean`, `x_std`
+- `y_min`, `y_max`, `y_mean`, `y_std`
+- `z_min`, `z_max`, `z_mean`, `z_std`
+- `magnitude_min`, `magnitude_max`, `magnitude_mean`, `magnitude_std`
     
--   `gyroscope`
+####   `gyroscopeuncalibrated`
+- `x_min`, `x_max`, `x_mean`, `x_std`
+- `y_min`, `y_max`, `y_mean`, `y_std`
+- `z_min`, `z_max`, `z_mean`, `z_std`
+- `xunc_min`, `xunc_max`, `xunc_mean`, `xunc_std`
+- `yunc_min`, `yunc_max`, `yunc_mean`, `yunc_std`
+- `zunc_min`, `zunc_max`, `zunc_mean`, `zunc_std`
+- `magnitude_min`, `magnitude_max`, `magnitude_mean`, `magnitude_std`
     
--   `gyroscopeuncalibrated`
+####   `headsetplug`
+- `headset_False`, `headset_True`
     
--   `headsetplug`
+####   `light`
+- `min`, `std`, `min`, `max`
     
--   `light`
+####  `linearacceleration`
+- `x_min`, `x_max`, `x_mean`, `x_std`
+- `y_min`, `y_max`, `y_mean`, `y_std`
+- `z_min`, `z_max`, `z_mean`, `z_std`
+- `magnitude_min`, `magnitude_max`, `magnitude_mean`, `magnitude_std`
     
--   `linearacceleration`
+####   `location`
+- `latitude`, `longitude`, 
+- `longitude_mean`, `longitude_min`, `longitude_max`, 
+- `latitude_mean`, `latitude_min`, `latitude_max`, 
+- `altitude_mean`, `altitude_min`, `altitude_max`, 
+- `speed_mean`, `speed_min`, `speed_max`, `speed_std`, 
+- `radius_of_gyration`, `distance_sum`
     
--   `location`
+####   `magneticfield`
+- `x_min`, `x_max`, `x_mean`, `x_std`
+- `y_min`, `y_max`, `y_mean`, `y_std`
+- `z_min`, `z_max`, `z_mean`, `z_std`
+- `magnitude_min`, `magnitude_max`, `magnitude_mean`, `magnitude_std`
     
--   `magneticfield`
+####   `magneticfielduncalibrated`
+- `x_min`, `x_max`, `x_mean`, `x_std`
+- `y_min`, `y_max`, `y_mean`, `y_std`
+- `z_min`, `z_max`, `z_mean`, `z_std`
+- `xunc_min`, `xunc_max`, `xunc_mean`, `xunc_std`
+- `yunc_min`, `yunc_max`, `yunc_mean`, `yunc_std`
+- `zunc_min`, `zunc_max`, `zunc_mean`, `zunc_std`
+- `magnitude_min`, `magnitude_max`, `magnitude_mean`, `magnitude_std`
     
--   `magneticfielduncalibrated`
+####   `music`
+- `music_False`, `music_True`
     
--   `music`
+####   `notification`
+- `notification_posted`, `notification_removed`
     
--   `notification`
+####   `orientation`
+- `x_min`, `x_max`, `x_mean`, `x_std`
+- `y_min`, `y_max`, `y_mean`, `y_std`
+- `z_min`, `z_max`, `z_mean`, `z_std`
+- `magnitude_min`, `magnitude_max`, `magnitude_mean`, `magnitude_std`
     
--   `orientation`
+####   `pressure`
+- `min`, `std`, `min`, `max`
     
--   `pressure`
+####   `proximity`
+- `min`, `std`, `min`, `max`
     
--   `proximity`
+####   `relativehumidity`
+- `min`, `std`, `min`, `max`
     
--   `relativehumidity`
+####   `ringmode`
+- `ringmode_mode_silent`, `ringmode_mode_normal`, `ringmode_mode_vibrate`
     
--   `ringmode`
+####   `rotationvector`
+- `x_min`, `x_max`, `x_mean`, `x_std`
+- `y_min`, `y_max`, `y_mean`, `y_std`
+- `z_min`, `z_max`, `z_mean`, `z_std`
+- `magnitude_min`, `magnitude_max`, `magnitude_mean`, `magnitude_std`
+- `accuracy_min`, `accuracy_max`, `accuracy_mean`, `accuracy_std`
+- `scalar_min`, `scalar_max`, `scalar_mean`, `scalar_std`
     
--   `rotationvector`
+####   `screen`
+- `screen_SCREEN_ON`, `screen_SCREEN_OFF`, `screen_episodes_count`, 
+- `screen_mean_seconds_per_episode`, `screen_min_seconds_per_episode`, `screen_max_seconds_per_episode`, `screen_std_seconds_per_episode`
     
--   `screen`
+####   `stepcounter`
+- `steps_counter` 
     
--   `stepcounter`
+####   `stepdetector`
+- `steps_detected_count`
     
--   `stepdetector`
+####   `touch`
+- `touch_count` 
     
--   `touch`
+####   `wifi`
+- `is_connected`
     
--   `wifi`
-    
--   `wifinetworks`
+####   `wifinetworks`
+- `wifi_num_of_devices`,
+- `wifi_mean_rssi`, `wifi_min_rssi`, `wifi_max_rssi`, `wifi_std_rssi`
+ 

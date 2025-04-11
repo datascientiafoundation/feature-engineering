@@ -16,6 +16,10 @@ data/processed/**
 !data/processed/**/
 !data/processed/**/.gitkeep
 
+data/interim/**
+!data/interim/**/
+!data/interim/**/.gitkeep
+
 data/CREP/**
 !data/CREP/**/
 !data/CREP/**/.gitkeep

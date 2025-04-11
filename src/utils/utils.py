@@ -75,6 +75,10 @@ def _intervalindex_to_columns(df):
     df.pop('interval')
 
 
+def parse_interval(df):
+    return df.apply(
+        lambda row: pd.Interval(row['start_interval'], row['end_interval'], closed='left'), axis=1)
+
 
 def get_logger(name, filename, level=logging.INFO):
     logger = logging.getLogger(name)

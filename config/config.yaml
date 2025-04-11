@@ -36,3 +36,6 @@ datasets:
  - touch
  - wifi
  - wifinetworks
+
+timediary: True
+

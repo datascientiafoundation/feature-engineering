@@ -9,7 +9,18 @@ from pathlib import Path
 from src.utils.utils import _intervalindex_to_columns, get_logger, radius_of_gyration, get_total_distance_covered, \
     centermost_point
 
+
 def compute_windows_intervals(contribution: pd.DataFrame, window_size_mins: int) -> pd.IntervalIndex:
+    timestamp = 'timestamp'
+    start_interval = contribution[timestamp].dt.floor('s') - pd.Timedelta(minutes=int(window_size_mins / 2))
+    end_interval = contribution[timestamp].dt.floor('s') + pd.Timedelta(minutes=int(window_size_mins / 2))
+    intervals = pd.IntervalIndex.from_arrays(start_interval, end_interval, closed='left')
+    # if closed is change, remember to do the same in every place tha interval is used
+    assert not intervals.is_overlapping
+    return intervals
+
+
+def compute_windows_intervals_single_sensor(contribution: pd.DataFrame, window_size_mins: int) -> pd.IntervalIndex:
     timestamp_col = 'timestamp'
 
     start = contribution[timestamp_col].min().floor(f'{window_size_mins}min')
@@ -370,7 +381,7 @@ def on_change_feature(groups, sensor_df, sensor_name: str, column_name: str, sta
     return duration_per_group.add_prefix(prefix)
 
 
-def main(input_path: Path, output_path: Path, window_size_mins: int):
+def main(input_path: Path, input_timediary: Path, output_path: Path, window_size_mins: int, timediary_include: bool):
     sensor_name = input_path.stem
     sensor_name = sensor_name.replace('event', '')
     logger.info(f"Start feature generation sensor={sensor_name}")
@@ -392,14 +403,35 @@ def main(input_path: Path, output_path: Path, window_size_mins: int):
     if sensor_name == 'batterycharge':
         sensor.source.replace(np.nan, 'no_charging', inplace=True)
 
+    # Check timediary
+    if timediary_include:
+        logger.info('Loading time diary...')
+        tddf = pd.read_csv(input_timediary,
+                           parse_dates=['timestamp', 'notificationtimestamp', 'answertimestamp'])
+        tddf['timestamp'] = tddf['timestamp'].dt.tz_localize(None)  # Removes the timezone
+    else:
+        logger.warning('Time diary is missing or empty. Will compute intervals from sensor data.')
+        tddf = None
+
     user_ids = sensor.userid.unique().tolist()
     features = []
     for user in user_ids:
-
         logger.info(f'user={user}')
         sensor_user = sensor[sensor.userid == user].copy()
-        intervals = compute_windows_intervals(sensor_user, window_size_mins)
+        if timediary_include:
+            td_user = tddf[tddf.userid == user]
+            intervals = compute_windows_intervals(td_user, window_size_mins)
+        else:
+            intervals = compute_windows_intervals_single_sensor(sensor_user, window_size_mins)
+
         sensor_user['interval'] = pd.cut(sensor_user.timestamp, intervals, duplicates='raise')
+
+        if sensor_user['interval'].isna().any():
+            logger.warning(f'Some sensors reading are not included in any window')
+
+        if sensor_user['interval'].isna().all():
+            logger.warning(f'Skip user={user}, no sensor data is in a interval!')
+            continue
 
         on_change_sensors = {
             'screen': dict(prefix='screen_'),
@@ -417,7 +449,7 @@ def main(input_path: Path, output_path: Path, window_size_mins: int):
                          'light': 'light_',
                          'pressure': 'pressure_',
                          'ambienttemperature': 'ambienttemperature_',
-                         'relativehumidity': 'relative_humidity_',}
+                         'relativehumidity': 'relative_humidity_', }
 
         groupbycolumns = ['userid', 'experimentid', 'interval']
 
@@ -429,7 +461,7 @@ def main(input_path: Path, output_path: Path, window_size_mins: int):
             ft = wifi(groups)
         elif sensor_name == 'wifinetworks':
             ft = wifinetworks(groups)
-        elif sensor_name in ['location', 'location']:
+        elif sensor_name in ['location']:
             ft = location_feature(groups)
         elif sensor_name == 'cellularnetwork':
             groups = sensor_user.loc[sensor_user['type'] == 'lte'].groupby(groupbycolumns, sort=True, group_keys=True)
@@ -449,7 +481,8 @@ def main(input_path: Path, output_path: Path, window_size_mins: int):
         elif sensor_name in ['bluetoothnormal', 'bluetoothlowenergy',
                              'bluetooth']:  # added bluetooth
             ft = bluetoothdevices(groups, prefix=sensor_name + '_')
-        elif sensor_name in ['gyroscope', 'magneticfield', 'accelerometer', 'gravity', 'orientation', 'linearacceleration']:
+        elif sensor_name in ['gyroscope', 'magneticfield', 'accelerometer', 'gravity', 'orientation',
+                             'linearacceleration']:
             ft = xyz_feature(groups, prefix=sensor_name + '_')
         elif sensor_name in ['accelerometeruncalibrated', 'magneticfielduncalibrated', 'gyroscopeuncalibrated']:
             ft = xyz_unc_feature(groups, prefix=sensor_name + '_')
@@ -511,12 +544,14 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', '--input')
+    parser.add_argument('-t', '--timediary', )
     parser.add_argument('-o', '--output')
     parser.add_argument('-l', '--logs',
                         help='path to logging file')
-    parser.add_argument('-t', '--window-size', type=int)
+    parser.add_argument('-f', '--window-size', type=int)
+    parser.add_argument('-ti', '--timediary_include', type=bool)
     args = parser.parse_args()
-
     logger = get_logger(os.path.basename(__file__), args.logs)
+    args.timediary_include = args.timediary_include == 'True'
 
-    main(Path(args.input), Path(args.output), args.window_size)
+    main(Path(args.input), Path(args.timediary), Path(args.output), args.window_size, args.timediary_include)
