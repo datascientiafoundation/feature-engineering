@@ -63,7 +63,7 @@ pip install snakemake
 │   ├── feature.py               # Script for performing feature engineering on a single dataset
 │   ├── join_features.py         # Script for merging/joining features from different sensors
 │   └── load.py                  # Script for loading datasets
-├── test/						 # Test dataset (input, output)
+├── test/			 # Test dataset (input, output)
 ├── CITATION.cff
 ├── environment.yml              # Conda environment configuration file
 ├── LICENCE                      # Contains the license information for the project (e.g., MIT License)
