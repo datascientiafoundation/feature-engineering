@@ -1,5 +1,6 @@
 
 
+
 # Feature Engineering
 
 This repository contains the code to generate features from the raw data available on the [LivePeople data catalog](https://datascientiafoundation.github.io/LivePeople) powered by [Datascientia](https://datascientia.eu/). The following code has been tested on [DivesityOne dataset](https://datascientia.eu/projects/diversityone/).
@@ -60,6 +61,7 @@ pip install snakemake
 │   ├── feature.py               # Script for performing feature engineering on a single dataset
 │   ├── join_features.py         # Script for merging/joining features from different sensors
 │   └── load.py                  # Script for loading datasets
+├── test/						 # Test dataset (input, output)
 ├── CITATION.cff
 ├── environment.yml              # Conda environment configuration file
 ├── LICENCE                      # Contains the license information for the project (e.g., MIT License)
@@ -100,10 +102,21 @@ snakemake all --cores 1
 ```
 
 ### Configuration
+**`config.yaml`** includes the following settings:
 
-**config.yaml**: 
- - Contains a list of available datasets. The names are strict; therefore, sensors defined here will be processed only if the corresponding dataset is available. 
- - Configuration for timediary included feature generation
+-   **Available Datasets**:  
+    A strict list of dataset names. Only the sensors explicitly listed here will be processed—any sensor not listed will be ignored, even if present.
+    
+-   **Time Diary Inclusion**:  
+    A boolean flag that controls whether time diary data should be included in feature generation.
+    
+- **Sensor Frequency (`freq`)**:  
+Specifies the duration of each time window in minutes.
+	-   When using time diary:  
+    For instance, if `freq` is set to 30 minutes and time diary entries occur every 30 minutes, each time window spans from 15 minutes before to 15 minutes after a time diary timestamp. Sensor events within these windows are aggregated to generate features.
+ 
+	-	When not using time diary:  
+    The entire sensor data timeline is divided into consecutive, non-overlapping intervals of fixed length. For example, if `freq` is set to 30 minutes, intervals like [10:00–10:30), [10:30–11:00), and so on are created. Sensor events are assigned to these intervals based on their timestamps, and features are aggregated accordingly.
 
 ## Process single dataset
 You can process a single dataset using the [src/feature.py](src/feature) script directly:
