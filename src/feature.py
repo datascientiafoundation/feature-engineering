@@ -21,19 +21,16 @@ def compute_windows_intervals(contribution: pd.DataFrame, window_size_mins: int)
 
 
 def compute_windows_intervals_single_sensor(contribution: pd.DataFrame, window_size_mins: int) -> pd.IntervalIndex:
-    timestamp_col = 'timestamp'
+    timestamp = 'timestamp'
 
-    start = contribution[timestamp_col].min().floor(f'{window_size_mins}min')
-    end = contribution[timestamp_col].max().ceil(f'{window_size_mins}min')
+    # Floor the timestamps to the nearest interval of window_size_mins
+    start = contribution[timestamp].min().floor(f'{window_size_mins}min')
+    end = contribution[timestamp].max().ceil(f'{window_size_mins}min')
+    intervals = pd.date_range(start, end, freq=f'{window_size_mins}min')
+    interval_index = pd.IntervalIndex.from_breaks(intervals, closed='left')
 
-    bins = pd.date_range(
-        start=start,
-        end=end + pd.Timedelta(minutes=window_size_mins),
-        freq=f'{window_size_mins}min'
-    )
+    return interval_index
 
-    intervals = pd.IntervalIndex.from_breaks(bins, closed='left')
-    return intervals
 
 
 # =======================================================================================
@@ -423,7 +420,6 @@ def main(input_path: Path, input_timediary: Path, output_path: Path, window_size
             intervals = compute_windows_intervals(td_user, window_size_mins)
         else:
             intervals = compute_windows_intervals_single_sensor(sensor_user, window_size_mins)
-
         sensor_user['interval'] = pd.cut(sensor_user.timestamp, intervals, duplicates='raise')
 
         if sensor_user['interval'].isna().any():
@@ -452,7 +448,7 @@ def main(input_path: Path, input_timediary: Path, output_path: Path, window_size
                          'relativehumidity': 'relative_humidity_', }
 
         groupbycolumns = ['userid', 'experimentid', 'interval']
-
+        sensor_user['interval'] = sensor_user['interval'].cat.remove_unused_categories()
         groups = sensor_user.groupby(groupbycolumns, sort=True, group_keys=True)
 
         if sensor_name in value_sensors.keys():
@@ -541,7 +537,6 @@ def main(input_path: Path, input_timediary: Path, output_path: Path, window_size
 
 if __name__ == '__main__':
     import argparse
-
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', '--input')
     parser.add_argument('-t', '--timediary', )
@@ -549,9 +544,16 @@ if __name__ == '__main__':
     parser.add_argument('-l', '--logs',
                         help='path to logging file')
     parser.add_argument('-f', '--window-size', type=int)
-    parser.add_argument('-ti', '--timediary_include', type=bool)
+    parser.add_argument('-ti', '--timediary_include', type=str, choices=['True', 'False'], default='False',
+                        help="Include time diary (True/False)")
+
     args = parser.parse_args()
     logger = get_logger(os.path.basename(__file__), args.logs)
-    args.timediary_include = args.timediary_include == 'True'
 
-    main(Path(args.input), Path(args.timediary), Path(args.output), args.window_size, args.timediary_include)
+    print(args.timediary_include == 'True')
+    main(Path(args.input), Path(args.timediary), Path(args.output), args.window_size, args.timediary_include == 'True')
+
+    # logger = get_logger(os.path.basename(__file__), '/Users/munkhdelger/Knowdive/feature-engineering/logs/ambienttemperature.log')
+    # main(Path('/Users/munkhdelger/Knowdive/feature-engineering/data/raw/ambienttemperature.parquet'),
+    #      Path('/Users/munkhdelger/Knowdive/feature-engineering/data/interim/timediary.csv'),
+    #      Path('/Users/munkhdelger/Knowdive/feature-engineering/data/interim/ambienttemperature.csv'), 30, True)
