@@ -38,4 +38,5 @@ datasets:
  - wifinetworks
 
 timediary: True
+freq: 30
 
