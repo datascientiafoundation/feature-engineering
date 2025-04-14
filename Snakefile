@@ -32,7 +32,7 @@ rule process_feature:
     log:
         "logs/{ds}.log"
     params:
-        freq=30,
+        freq=config['freq'],
         timediary_include = config['timediary']
     shell:
         "python -m src.feature -i {input.input_sensor} -t {input.timediary} -o {output} -l {log} -f {params.freq} -ti {params.timediary_include}"
