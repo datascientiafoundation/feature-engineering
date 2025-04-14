@@ -13,6 +13,8 @@ Typical usage of the features is for training machine learning models and for pe
 
 Details about the datasets can be found on [LivePeople data catalog](https://datascientiafoundation.github.io/LivePeople). 
 
+A sample test dataset is provided in the [`test/`](test) directory for quick experimentation and development.
+
 
 ## Requirements
 
