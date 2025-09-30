@@ -122,23 +122,41 @@ Specifies the duration of each time window in minutes.
 
 ## Process single dataset
 You can process a single dataset using the [src/feature.py](src/feature) script directly:
+
 ```bash
-python -m src.feature -i data/raw/<SENSOR>.parquet -t data/interim/timediary.csv -o data/interim/<SENSOR>.csv -l logs/<SENSOR>.log -f <FREQ> -ti True
+python -m src.feature -i data/raw/<SENSOR>.parquet \
+                      -t data/interim/timediary.csv \
+                      -o data/interim/<SENSOR>.csv \
+                      -l logs/<SENSOR>.log \
+                      -f <FREQ> \
+                      -ti True
 ```
 Example: 
+
 ```bash
-python -m src.feature -i data/raw/accelerometer.parquet -t data/interim/timediary.csv -o data/interim/accelerometer.csv -l logs/accelerometer.log -f 30 -ti True
+python -m src.feature -i data/raw/accelerometer.parquet \
+                      -t data/interim/timediary.csv \
+                      -o data/interim/accelerometer.csv \
+                      -l logs/accelerometer.log  \
+                      -f 30 \
+                      -ti True
 ```
 
  ## Workflow without timediary
 if you want to process datasets without timediary invervals, you can change the **timediary** parameter in [config/config.yaml](config/config.yaml) to **False**. Then the run the workflow as: 
+
 ```bash
 snakemake all --cores 1
 ```
 
 #### To process single datset without timediary: 
 ```bash
-python -m src.feature -i data/raw/<SENSOR>.parquet -t data/interim/timediary.csv -o data/interim/<SENSOR>.csv -l logs/<SENSOR>.log -f <FREQ> -ti False
+python -m src.feature -i data/raw/<SENSOR>.parquet \
+                      -t data/interim/timediary.csv \
+                      -o data/interim/<SENSOR>.csv \
+                      -l logs/<SENSOR>.log \
+                      -f <FREQ> \
+                      -ti False
 ```
 
 ### Cyclical Feature Encoding
