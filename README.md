@@ -168,6 +168,110 @@ Source: [Encoding Cyclical Features](https://ianlondon.github.io/posts/encoding-
 
 ## Supported Datasets and Extracted Features
 
+### Environment
+
+####   `ambienttemperature`
+- `min`, `std`, `min`, `max`
+
+####   `light`
+- `min`, `std`, `min`, `max`
+
+####   `pressure`
+- `min`, `std`, `min`, `max`
+
+####  `relativehumidity`
+- `min`, `std`, `min`, `max`
+
+### Application usage
+
+####   `airplanemode`
+ - `airplanemode_True`, `airplanemode_False`
+
+####   `applications`
+- `app_category_nunique`
+- `[application groups]`
+- `app_nunique`, `app_entropy_basic` 
+
+####   `headsetplug`
+- `headset_False`, `headset_True`
+
+####   `music`
+- `music_False`, `music_True`
+
+####   `notification`
+- `notification_posted`, `notification_removed`
+
+### Device usage
+
+####   `batterycharge`
+- `battery_charging_ac`, `battery_no_charging`, `battery_charging_unknown`
+    
+####   `batterylevel`
+- `battery_timestamp_first`, `battery_timestamp_last`, `battery_level_first`, `battery_level_last`, `battery_scale_mean`, `battery_delta` 
+
+    
+####   `doze`
+- `doze_True`, `doze_False`
+
+####   `ringmode`
+- `ringmode_mode_silent`, `ringmode_mode_normal`, `ringmode_mode_vibrate`
+
+####   `screen`
+- `screen_SCREEN_ON`, `screen_SCREEN_OFF`, `screen_episodes_count`, 
+- `screen_mean_seconds_per_episode`, `screen_min_seconds_per_episode`, `screen_max_seconds_per_episode`, `screen_std_seconds_per_episode`
+
+### Position
+
+####   `location`
+- `latitude`, `longitude`, 
+- `longitude_mean`, `longitude_min`, `longitude_max`, 
+- `latitude_mean`, `latitude_min`, `latitude_max`, 
+- `altitude_mean`, `altitude_min`, `altitude_max`, 
+- `speed_mean`, `speed_min`, `speed_max`, `speed_std`, 
+- `radius_of_gyration`, `distance_sum`
+
+####   `orientation`
+- `x_min`, `x_max`, `x_mean`, `x_std`
+- `y_min`, `y_max`, `y_mean`, `y_std`
+- `z_min`, `z_max`, `z_mean`, `z_std`
+- `magnitude_min`, `magnitude_max`, `magnitude_mean`, `magnitude_std`
+
+####   `proximity`
+- `min`, `std`, `min`, `max`
+
+####   `rotationvector`
+- `x_min`, `x_max`, `x_mean`, `x_std`
+- `y_min`, `y_max`, `y_mean`, `y_std`
+- `z_min`, `z_max`, `z_mean`, `z_std`
+- `magnitude_min`, `magnitude_max`, `magnitude_mean`, `magnitude_std`
+- `accuracy_min`, `accuracy_max`, `accuracy_mean`, `accuracy_std`
+- `scalar_min`, `scalar_max`, `scalar_mean`, `scalar_std`
+
+####   `magneticfield`
+- `x_min`, `x_max`, `x_mean`, `x_std`
+- `y_min`, `y_max`, `y_mean`, `y_std`
+- `z_min`, `z_max`, `z_mean`, `z_std`
+- `magnitude_min`, `magnitude_max`, `magnitude_mean`, `magnitude_std`
+    
+####   `magneticfielduncalibrated`
+- `x_min`, `x_max`, `x_mean`, `x_std`
+- `y_min`, `y_max`, `y_mean`, `y_std`
+- `z_min`, `z_max`, `z_mean`, `z_std`
+- `xunc_min`, `xunc_max`, `xunc_mean`, `xunc_std`
+- `yunc_min`, `yunc_max`, `yunc_mean`, `yunc_std`
+- `zunc_min`, `zunc_max`, `zunc_mean`, `zunc_std`
+- `magnitude_min`, `magnitude_max`, `magnitude_mean`, `magnitude_std`
+
+####   `geomagneticrotationvector`
+- `x_min`, `x_max`, `x_mean`, `x_std`
+- `y_min`, `y_max`, `y_mean`, `y_std`
+- `z_min`, `z_max`, `z_mean`, `z_std`
+- `magnitude_min`, `magnitude_max`, `magnitude_mean`, `magnitude_std`
+- `accuracy_min`, `accuracy_max`, `accuracy_mean`, `accuracy_std`
+- `scalar_min`, `scalar_max`, `scalar_mean`, `scalar_std`
+
+### Motion
+
 #### `accelerometer` 
 - `x_min`, `x_max`, `x_mean`, `x_std`
 - `y_min`, `y_max`, `y_mean`, `y_std`
@@ -182,44 +286,15 @@ Source: [Encoding Cyclical Features](https://ianlondon.github.io/posts/encoding-
 - `yunc_min`, `yunc_max`, `yunc_mean`, `yunc_std`
 - `zunc_min`, `zunc_max`, `zunc_mean`, `zunc_std`
 - `magnitude_min`, `magnitude_max`, `magnitude_mean`, `magnitude_std`
-    
-####  `activities`
-- `activity_Running` ,`activity_Unknown`, `activity_Tilting`, `activity_OnBicycle`, `activity_InVehicle`, `activity_Still`, `activity_Walking`, `activity_OnFoot`,
-    
-####   `airplanemode`
- - `airplanemode_True`, `airplanemode_False`
-    
-####   `ambienttemperature`
-- `min`, `std`, `min`, `max`
-    
-####   `applications`
-- `app_category_nunique`
-- `[application groups]`
-- `app_nunique`, `app_entropy_basic` 
 
-####   `batterycharge`
-- `battery_charging_ac`, `battery_no_charging`, `battery_charging_unknown`
-    
-####   `batterylevel`
-- `battery_timestamp_first`, `battery_timestamp_last`, `battery_level_first`, `battery_level_last`, `battery_scale_mean`, `battery_delta` 
-    
-####   `bluetooth`
-- `bluetooth_addr_nuinque`, `bluetooth_mean`, `bluetooth_min`, `bluetooth_max`, `bluetooth_std`, `bluetooth_var`, `bluetooth_entropy_basic,`
-    
-####   `cellularnetwork`
-- `cellular_lte_mean`, `cellular_lte_min`, `cellular_lte_max`, `cellular_lte_std`,
-- `cellular_lte_entropy_basic`, `cellular_lte_num_of_devices`
-    
-####   `doze`
-- `doze_True`, `doze_False`
-    
-####   `geomagneticrotationvector`
+####  `linearacceleration`
 - `x_min`, `x_max`, `x_mean`, `x_std`
 - `y_min`, `y_max`, `y_mean`, `y_std`
 - `z_min`, `z_max`, `z_mean`, `z_std`
 - `magnitude_min`, `magnitude_max`, `magnitude_mean`, `magnitude_std`
-- `accuracy_min`, `accuracy_max`, `accuracy_mean`, `accuracy_std`
-- `scalar_min`, `scalar_max`, `scalar_mean`, `scalar_std`
+
+####  `activities`
+- `activity_Running` ,`activity_Unknown`, `activity_Tilting`, `activity_OnBicycle`, `activity_InVehicle`, `activity_Still`, `activity_Walking`, `activity_OnFoot`,
     
 ####   `gravity`
 - `x_min`, `x_max`, `x_mean`, `x_std`
@@ -241,91 +316,35 @@ Source: [Encoding Cyclical Features](https://ianlondon.github.io/posts/encoding-
 - `yunc_min`, `yunc_max`, `yunc_mean`, `yunc_std`
 - `zunc_min`, `zunc_max`, `zunc_mean`, `zunc_std`
 - `magnitude_min`, `magnitude_max`, `magnitude_mean`, `magnitude_std`
-    
-####   `headsetplug`
-- `headset_False`, `headset_True`
-    
-####   `light`
-- `min`, `std`, `min`, `max`
-    
-####  `linearacceleration`
-- `x_min`, `x_max`, `x_mean`, `x_std`
-- `y_min`, `y_max`, `y_mean`, `y_std`
-- `z_min`, `z_max`, `z_mean`, `z_std`
-- `magnitude_min`, `magnitude_max`, `magnitude_mean`, `magnitude_std`
-    
-####   `location`
-- `latitude`, `longitude`, 
-- `longitude_mean`, `longitude_min`, `longitude_max`, 
-- `latitude_mean`, `latitude_min`, `latitude_max`, 
-- `altitude_mean`, `altitude_min`, `altitude_max`, 
-- `speed_mean`, `speed_min`, `speed_max`, `speed_std`, 
-- `radius_of_gyration`, `distance_sum`
-    
-####   `magneticfield`
-- `x_min`, `x_max`, `x_mean`, `x_std`
-- `y_min`, `y_max`, `y_mean`, `y_std`
-- `z_min`, `z_max`, `z_mean`, `z_std`
-- `magnitude_min`, `magnitude_max`, `magnitude_mean`, `magnitude_std`
-    
-####   `magneticfielduncalibrated`
-- `x_min`, `x_max`, `x_mean`, `x_std`
-- `y_min`, `y_max`, `y_mean`, `y_std`
-- `z_min`, `z_max`, `z_mean`, `z_std`
-- `xunc_min`, `xunc_max`, `xunc_mean`, `xunc_std`
-- `yunc_min`, `yunc_max`, `yunc_mean`, `yunc_std`
-- `zunc_min`, `zunc_max`, `zunc_mean`, `zunc_std`
-- `magnitude_min`, `magnitude_max`, `magnitude_mean`, `magnitude_std`
-    
-####   `music`
-- `music_False`, `music_True`
-    
-####   `notification`
-- `notification_posted`, `notification_removed`
-    
-####   `orientation`
-- `x_min`, `x_max`, `x_mean`, `x_std`
-- `y_min`, `y_max`, `y_mean`, `y_std`
-- `z_min`, `z_max`, `z_mean`, `z_std`
-- `magnitude_min`, `magnitude_max`, `magnitude_mean`, `magnitude_std`
-    
-####   `pressure`
-- `min`, `std`, `min`, `max`
-    
-####   `proximity`
-- `min`, `std`, `min`, `max`
-    
-####   `relativehumidity`
-- `min`, `std`, `min`, `max`
-    
-####   `ringmode`
-- `ringmode_mode_silent`, `ringmode_mode_normal`, `ringmode_mode_vibrate`
-    
-####   `rotationvector`
-- `x_min`, `x_max`, `x_mean`, `x_std`
-- `y_min`, `y_max`, `y_mean`, `y_std`
-- `z_min`, `z_max`, `z_mean`, `z_std`
-- `magnitude_min`, `magnitude_max`, `magnitude_mean`, `magnitude_std`
-- `accuracy_min`, `accuracy_max`, `accuracy_mean`, `accuracy_std`
-- `scalar_min`, `scalar_max`, `scalar_mean`, `scalar_std`
-    
-####   `screen`
-- `screen_SCREEN_ON`, `screen_SCREEN_OFF`, `screen_episodes_count`, 
-- `screen_mean_seconds_per_episode`, `screen_min_seconds_per_episode`, `screen_max_seconds_per_episode`, `screen_std_seconds_per_episode`
-    
+
 ####   `stepcounter`
 - `steps_counter` 
     
 ####   `stepdetector`
 - `steps_detected_count`
-    
+
 ####   `touch`
 - `touch_count` 
-    
+
+### Connectivity
+
+####   `bluetooth`
+- `bluetooth_addr_nuinque`, `bluetooth_mean`, `bluetooth_min`, `bluetooth_max`, `bluetooth_std`, `bluetooth_var`, `bluetooth_entropy_basic,`
+
+####   `cellularnetwork`
+- `cellular_lte_mean`, `cellular_lte_min`, `cellular_lte_max`, `cellular_lte_std`,
+- `cellular_lte_entropy_basic`, `cellular_lte_num_of_devices`
+
 ####   `wifi`
-- `is_connected`
+
+| Feature name   | Type    | Description                                                                     |
+|----------------|---------|---------------------------------------------------------------------------------|
+| `is_connected` | boolean | Whether the device connected to a WiFi network at least once in the time window |
     
 ####   `wifinetworks`
-- `wifi_num_of_devices`,
-- `wifi_mean_rssi`, `wifi_min_rssi`, `wifi_max_rssi`, `wifi_std_rssi`
+
+| Feature name                                                        | Type    | Description                                                                                           |
+|---------------------------------------------------------------------|---------|-------------------------------------------------------------------------------------------------------|
+| `wifi_num_of_devices`                                               | integer | Number of unique scanned networks                                                                     |
+| `wifi_mean_rssi`, `wifi_min_rssi`, `wifi_max_rssi`, `wifi_std_rssi` | float   | Mean, min, max and variance of the Received Signal Strength Indicator (RSSI) of the detected networks |                                  |
  
