@@ -143,7 +143,7 @@ python -m src.feature -i data/raw/accelerometer.parquet \
 ```
 
  ## Workflow without timediary
-if you want to process datasets without timediary invervals, you can change the **timediary** parameter in [config/config.yaml](config/config.yaml) to **False**. Then the run the workflow as: 
+if you want to process datasets without timediary intervals, you can change the **timediary** parameter in [config/config.yaml](config/config.yaml) to **False**. Then the run the workflow as: 
 
 ```bash
 snakemake all --cores 1

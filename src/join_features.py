@@ -1,5 +1,5 @@
 """
-Generate the final data set used by SKEL
+Generate the final data set containing the features and the target variables
 """
 import os.path
 from pathlib import Path

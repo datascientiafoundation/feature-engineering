@@ -2,14 +2,17 @@ import os
 
 from pathlib import Path
 import pandas as pd
+from pandas.core.dtypes.common import is_datetime64_any_dtype
+
 from src.utils.utils import get_logger
 
 
 def main(input_path: Path, output_path: Path):
     logger.info('Loading users\' contributions...')
     df = pd.read_parquet(input_path)
-    for col in ['timestamp']:
-        df[col] = pd.to_datetime(df[col], format='%m%d%H%M%S%f')
+    for col in ['timestamp', 'answertimestamp', 'notificationtimestamp']:
+        if not is_datetime64_any_dtype(df[col]):
+            raise TypeError(f'column {col} is not a datetime64 dtype')
 
     # filter out timediary questions
     df = df[df['tag'] == 'time_diary']
@@ -29,11 +32,11 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', '--input', help='timediary path',
-                        default='/Users/munkhdelger/Knowdive/feature-engineering/data/raw/timediary.parquet')
+                        default='./data/raw/timediary.parquet')
     parser.add_argument('-o', '--output',
-                        default='/Users/munkhdelger/Knowdive/feature-engineering/data/interim/timediary.csv')
+                        default='./data/interim/timediary.csv')
     parser.add_argument('-l', '--logs', help='path to logging file',
-                        default='/Users/munkhdelger/Knowdive/feature-engineering/logs/get_user_label.log')
+                        default='./logs/get_user_label.log')
     args = parser.parse_args()
 
     logger = get_logger(os.path.basename(__file__), args.logs)

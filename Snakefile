@@ -1,5 +1,3 @@
-from pathlib import Path
-
 from snakemake.io import expand
 
 

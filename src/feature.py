@@ -1,11 +1,13 @@
-import glob
-import logging
+import os
 import os
 import time
-import scipy
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
-from pathlib import Path
+import scipy
+from pandas.core.dtypes.common import is_datetime64_any_dtype
+
 from src.utils.utils import _intervalindex_to_columns, get_logger, radius_of_gyration, get_total_distance_covered, \
     centermost_point
 
@@ -387,9 +389,11 @@ def main(input_path: Path, input_timediary: Path, output_path: Path, window_size
     sensor = pd.read_parquet(input_path)
     logger.info(f'Full dataset length: {len(sensor)}')
 
-    sensor['timestamp'] = pd.to_datetime(sensor['timestamp'], format='%m%d%H%M%S%f')
-    sensor['timestamp'] = sensor['timestamp'].dt.tz_localize(None)  # Removes the timezone
-    sensor['timestamp'] = sensor['timestamp'].astype('datetime64[ns]')
+    if not is_datetime64_any_dtype(sensor['timestamp']):
+        raise TypeError(f'column "timestamp" is not a datetime64 dtype')
+    #sensor['timestamp'] = pd.to_datetime(sensor['timestamp'], format='%m%d%H%M%S%f')
+    #sensor['timestamp'] = sensor['timestamp'].dt.tz_localize(None)  # Removes the timezone
+    #sensor['timestamp'] = sensor['timestamp'].astype('datetime64[ns]')
 
     logger.info(f'Timestamp format changed ')
     if 'day' in sensor.columns:
@@ -538,22 +542,19 @@ def main(input_path: Path, input_timediary: Path, output_path: Path, window_size
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument('-i', '--input')
-    parser.add_argument('-t', '--timediary', )
-    parser.add_argument('-o', '--output')
-    parser.add_argument('-l', '--logs',
-                        help='path to logging file')
-    parser.add_argument('-f', '--window-size', type=int)
+    parser.add_argument('-i', '--input', help="path to the sensor file")
+    parser.add_argument('-t', '--timediary', help='path to the time diary file' )
+    parser.add_argument('-o', '--output', help="path to the generate features files")
+    parser.add_argument('-l', '--logs', help='path to logging file')
+    parser.add_argument('-f', '--window-size', type=int, help='aggregation window size in seconds')
     parser.add_argument('-ti', '--timediary_include', type=str, choices=['True', 'False'], default='False',
-                        help="Include time diary (True/False)")
+                        help="Use time diary timestamps for window positioning (True/False)")
 
     args = parser.parse_args()
     logger = get_logger(os.path.basename(__file__), args.logs)
 
-    print(args.timediary_include == 'True')
-    main(Path(args.input), Path(args.timediary), Path(args.output), args.window_size, args.timediary_include == 'True')
-
-    # logger = get_logger(os.path.basename(__file__), '/Users/munkhdelger/Knowdive/feature-engineering/logs/ambienttemperature.log')
-    # main(Path('/Users/munkhdelger/Knowdive/feature-engineering/data/raw/ambienttemperature.parquet'),
-    #      Path('/Users/munkhdelger/Knowdive/feature-engineering/data/interim/timediary.csv'),
-    #      Path('/Users/munkhdelger/Knowdive/feature-engineering/data/interim/ambienttemperature.csv'), 30, True)
+    main(input_path=Path(args.input),
+         input_timediary=Path(args.timediary),
+         output_path=Path(args.output),
+         window_size_mins=args.window_size,
+         timediary_include=args.timediary_include == 'True')
