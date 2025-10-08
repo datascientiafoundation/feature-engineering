@@ -10,7 +10,7 @@ from src.utils.utils import get_logger
 def main(input_path: Path, output_path: Path, tag: str):
     logger.info('Loading users\' contributions...')
     df = pd.read_parquet(input_path)
-    for col in ['timestamp', 'answertimestamp', 'notificationtimestamp']:
+    for col in ['instancetimestamp', 'answertimestamp', 'notificationtimestamp']:
         if not is_datetime64_any_dtype(df[col]):
             raise TypeError(f'column {col} is not a datetime64 dtype')
 
@@ -23,7 +23,7 @@ def main(input_path: Path, output_path: Path, tag: str):
         logger.warning('Reset index, there are duplicates')
         raise ValueError()
 
-    assert (df.groupby(['userid', 'timestamp']).size() == 1).all()
+    assert (df.groupby(['userid', 'instancetimestamp']).size() == 1).all()
     df.to_csv(output_path, index=False)
 
 
