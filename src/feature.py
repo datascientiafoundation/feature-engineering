@@ -408,8 +408,9 @@ def main(input_path: Path, input_timediary: Path, output_path: Path, window_size
     if timediary_include:
         logger.info('Loading time diary...')
         tddf = pd.read_csv(input_timediary,
-                           parse_dates=['timestamp', 'notificationtimestamp', 'answertimestamp'])
-        tddf['timestamp'] = tddf['timestamp'].dt.tz_localize(None)  # Removes the timezone
+                           parse_dates=['instancetimestamp', 'notificationtimestamp', 'answertimestamp'])
+        tddf['instancetimestamp'] = tddf['instancetimestamp'].dt.tz_localize(None)  # Removes the timezone
+        tddf['timestamp'] = tddf['instancetimestamp']
     else:
         logger.warning('Time diary is missing or empty. Will compute intervals from sensor data.')
         tddf = None
@@ -419,11 +420,15 @@ def main(input_path: Path, input_timediary: Path, output_path: Path, window_size
     for user in user_ids:
         logger.info(f'user={user}')
         sensor_user = sensor[sensor.userid == user].copy()
+        print(timediary_include)
         if timediary_include:
             td_user = tddf[tddf.userid == user]
             intervals = compute_windows_intervals(td_user, window_size_mins)
         else:
             intervals = compute_windows_intervals_single_sensor(sensor_user, window_size_mins)
+
+        sensor_user['timestamp'] = sensor_user['timestamp'].astype('datetime64[ns]')
+
         sensor_user['interval'] = pd.cut(sensor_user.timestamp, intervals, duplicates='raise')
 
         if sensor_user['interval'].isna().any():
