@@ -1,45 +1,11 @@
 # list of sensors for which features are calculated
 datasets:
  - accelerometer
- - accelerometeruncalibrated
- - activities
- - airplanemode
- - ambienttemperature
- - applications
- - batterycharge
- - batterylevel
- - bluetooth
- - cellularnetwork
- - doze
- - geomagneticrotationvector
- - gravity
- - gyroscope
- - gyroscopeuncalibrated
- - headsetplug
- - light
- - linearacceleration
- - location
- - magneticfield
- - magneticfielduncalibrated
- - music
- - notification
- - orientation
- - pressure
- - proximity
- - relativehumidity
- - ringmode
- - rotationvector
- - screen
- - stepcounter
- - stepdetector
-# - survey
-# - timediary
- - touch
- - wifi
- - wifinetworks
 
 # whether time diary data should be included in feature generation.
 timediary: True
+# the tag value associated to time diares in the dataset (i.e., value used in tag column in timediary.parquet)
+timediary_tag: Time Diaries
 
 # aggregation window size in minutes
 # - it timediary: True, then the window size w is taken with respect to the timediaries timestamp

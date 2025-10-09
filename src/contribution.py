@@ -7,7 +7,7 @@ from pandas.core.dtypes.common import is_datetime64_any_dtype
 from src.utils.utils import get_logger
 
 
-def main(input_path: Path, output_path: Path):
+def main(input_path: Path, output_path: Path, tag: str):
     logger.info('Loading users\' contributions...')
     df = pd.read_parquet(input_path)
     for col in ['timestamp', 'answertimestamp', 'notificationtimestamp']:
@@ -15,7 +15,7 @@ def main(input_path: Path, output_path: Path):
             raise TypeError(f'column {col} is not a datetime64 dtype')
 
     # filter out timediary questions
-    df = df[df['tag'] == 'time_diary']
+    df = df[df['tag'] == tag]
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     assert len(df) != 0
@@ -37,9 +37,10 @@ if __name__ == '__main__':
                         default='./data/interim/timediary.csv')
     parser.add_argument('-l', '--logs', help='path to logging file',
                         default='./logs/get_user_label.log')
+    parser.add_argument('-t', '--tag', help='tag value, e.g., "Time Diaries"', default='tag')
     args = parser.parse_args()
 
     logger = get_logger(os.path.basename(__file__), args.logs)
 
-    main(Path(args.input), Path(args.output))
+    main(Path(args.input), Path(args.output), args.tag)
     logger.info("Done!")
