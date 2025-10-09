@@ -115,12 +115,11 @@ snakemake all --cores 1
 -   **Time Diary Inclusion**:  
     A boolean flag that controls whether time diary data should be included in feature generation.
     
-- **Sensor Frequency (`freq`)**:  
-Specifies the duration of each time window in minutes.
-	-   When using time diary:  
+- **Sensor Frequency (`freq`)**: Specifies the duration of each time window in minutes.
+	-   _When using time diary_:  
     For instance, if `freq` is set to 30 minutes and time diary entries occur every 30 minutes, each time window spans from 15 minutes before to 15 minutes after a time diary timestamp. Sensor events within these windows are aggregated to generate features.
  
-	-	When not using time diary:  
+	-	_When not using time diary_:  
     The entire sensor data timeline is divided into consecutive, non-overlapping intervals of fixed length. For example, if `freq` is set to 30 minutes, intervals like [10:00–10:30), [10:30–11:00), and so on are created. Sensor events are assigned to these intervals based on their timestamps, and features are aggregated accordingly.
 
 ## Process single dataset
@@ -155,7 +154,7 @@ parameter in [config/config.yaml](config/config.yaml) to **False**. Then the run
 snakemake all --cores 1
 ```
 
-#### To process single datset without timediary:
+#### To process single dataset without timediary:
 
 ```bash
 python -m src.feature -i data/raw/<SENSOR>.parquet \
@@ -166,7 +165,66 @@ python -m src.feature -i data/raw/<SENSOR>.parquet \
                       -ti False
 ```
 
+
+## Supported Datasets and Extracted Features
+
+<!-- TOC -->
+* [Cyclical Feature Encoding](#cyclical-feature-encoding)
+* [Environment](#environment)
+  * [`ambienttemperature`](#ambienttemperature)
+  * [`light`](#light)
+  * [`pressure`](#pressure)
+  * [`relativehumidity`](#relativehumidity)
+* [Application usage](#application-usage)
+  * [`airplanemode`](#airplanemode)
+  * [`applications`](#applications)
+  * [`headsetplug`](#headsetplug)
+  * [`music`](#music)
+  * [`notification`](#notification)
+* [Device usage](#device-usage)
+  * [`batterycharge`](#batterycharge)
+  * [`batterylevel`](#batterylevel)
+  * [`doze`](#doze)
+  * [`ringmode`](#ringmode)
+  * [`screen`](#screen)
+* [Position](#position)
+  * [`location`](#location)
+  * [`orientation`](#orientation)
+  * [`proximity`](#proximity)
+  * [`rotationvector`](#rotationvector)
+  * [`magneticfield`](#magneticfield)
+  * [`magneticfielduncalibrated`](#magneticfielduncalibrated)
+  * [`geomagneticrotationvector`](#geomagneticrotationvector)
+* [Motion](#motion)
+  * [`accelerometer`](#accelerometer-)
+  * [`accelerometeruncalibrated`](#accelerometeruncalibrated)
+  * [`linearacceleration`](#linearacceleration)
+  * [`activities`](#activities)
+  * [`gravity`](#gravity)
+  * [`gyroscope`](#gyroscope)
+  * [`gyroscopeuncalibrated`](#gyroscopeuncalibrated)
+  * [`stepcounter`](#stepcounter)
+  * [`stepdetector`](#stepdetector)
+  * [`touch`](#touch)
+* [Connectivity](#connectivity)
+  * [`bluetooth`](#bluetooth)
+  * [`cellularnetwork`](#cellularnetwork)
+  * [`wifi`](#wifi)
+  * [`wifinetworks`](#wifinetworks)
+<!-- TOC -->
+
 ### Cyclical Feature Encoding
+
+
+| Feature name           | Type           | Description                                             |
+|------------------------|----------------|---------------------------------------------------------|
+| `hour`                 | integer [0,23] | hour of the window start                                |
+| `sin_hour`, `cos_hour` | float [0,1]    | sine and cosine of the hour                             |
+| `day_period_morning`   | boolean        | hour of the window star is between 6:00 am and 9:59 am  |
+| `day_period_noon`      | boolean        | hour of the window star is between 10:00 am and 1:59 pm |
+| `day_period_evening`   | boolean        | hour of the window star is between 2:00 pm and 5:59 pm  |
+| `day_period_aftenoon`  | boolean        | hour of the window star is between 6:00 pm and 9:59 pm  |
+| `day_period_nigth`     | boolean        | hour of the window star is between 10:00 pm and 5:59 am |
 
 Cyclical features, such as the hour of the day, are also added to the dataset in order to capture the circular nature of time.
 This encoding technique helps models understand that certain times are close to others, such as 23:00 being close to 00:00.
@@ -175,8 +233,6 @@ which improves the performance of models that involve time-based patterns.
 
 Source: [Encoding Cyclical Features](https://ianlondon.github.io/posts/encoding-cyclical-features-24-hour-time/)
 
-
-## Supported Datasets and Extracted Features
 
 ### Environment
 
@@ -217,7 +273,12 @@ Source: [Encoding Cyclical Features](https://ianlondon.github.io/posts/encoding-
 - `battery_charging_ac`, `battery_no_charging`, `battery_charging_unknown`
     
 ####   `batterylevel`
-- `battery_timestamp_first`, `battery_timestamp_last`, `battery_level_first`, `battery_level_last`, `battery_scale_mean`, `battery_delta` 
+
+| Feature name                                        | Type | Description |
+|-----------------------------------------------------|------|-------------|
+| `battery_level_first`, `battery_level_last`         |      |             |
+| `battery_scale_mean`                                |      |             |
+| `battery_delta`                                     |      |             |
 
     
 ####   `doze`
@@ -227,6 +288,7 @@ Source: [Encoding Cyclical Features](https://ianlondon.github.io/posts/encoding-
 - `ringmode_mode_silent`, `ringmode_mode_normal`, `ringmode_mode_vibrate`
 
 ####   `screen`
+
 - `screen_SCREEN_ON`, `screen_SCREEN_OFF`, `screen_episodes_count`, 
 - `screen_mean_seconds_per_episode`, `screen_min_seconds_per_episode`, `screen_max_seconds_per_episode`, `screen_std_seconds_per_episode`
 
@@ -239,6 +301,7 @@ Source: [Encoding Cyclical Features](https://ianlondon.github.io/posts/encoding-
 - `altitude_mean`, `altitude_min`, `altitude_max`, 
 - `speed_mean`, `speed_min`, `speed_max`, `speed_std`, 
 - `radius_of_gyration`, `distance_sum`
+
 
 ####   `orientation`
 - `x_min`, `x_max`, `x_mean`, `x_std`
@@ -339,17 +402,22 @@ Source: [Encoding Cyclical Features](https://ianlondon.github.io/posts/encoding-
 ### Connectivity
 
 ####   `bluetooth`
-- `bluetooth_addr_nuinque`, `bluetooth_mean`, `bluetooth_min`, `bluetooth_max`, `bluetooth_std`, `bluetooth_var`, `bluetooth_entropy_basic,`
+- `bluetooth_addr_nunique`, `bluetooth_mean`, `bluetooth_min`, `bluetooth_max`, `bluetooth_std`, `bluetooth_var`, `bluetooth_entropy_basic,`
 
 ####   `cellularnetwork`
-- `cellular_lte_mean`, `cellular_lte_min`, `cellular_lte_max`, `cellular_lte_std`,
-- `cellular_lte_entropy_basic`, `cellular_lte_num_of_devices`
+
+| Feature name                         | Type  | Description                                          |
+|--------------------------------------|-------|------------------------------------------------------|
+| `cellular_lte_{mean, min, max, std}` | float | descriptive statistics of the signal strength values |
+| `cellular_lte_entropy_basic`         | float | entropy of the cellular ids                          |
+| `cellular_lte_num_of_devices`        | count | number of unique                                     |
+
 
 ####   `wifi`
 
-| Feature name   | Type    | Description                                                                     |
-|----------------|---------|---------------------------------------------------------------------------------|
-| `is_connected` | boolean | Whether the device connected to a WiFi network at least once in the time window |
+| Feature name        | Type    | Description                                                                     |
+|---------------------|---------|---------------------------------------------------------------------------------|
+| `wifi_is_connected` | boolean | Whether the device connected to a WiFi network at least once in the time window |
     
 ####   `wifinetworks`
 

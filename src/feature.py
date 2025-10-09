@@ -196,8 +196,9 @@ def batterymonitoringlog(groups):
 
     ft = groups \
         .apply(lambda x: x.sort_values('timestamp', ascending=True)) \
-        .groupby(level=[0, 1, 2])[['timestamp', 'level', 'scale']] \
-        .agg({'timestamp': ['first', 'last'], 'level': ['first', 'last'], 'scale': ['mean']})
+        .groupby(level=[0, 1, 2])[['level', 'scale']] \
+        .agg({#'timestamp': ['first', 'last'],
+              'level': ['first', 'last'], 'scale': ['mean']})
 
     ft.columns = ft.columns.map('_'.join)
     ft['level_last'] = ft['level_last'] * 100 / ft['scale_mean']
