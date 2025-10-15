@@ -106,14 +106,17 @@ def _count_steps(x):
 
 def stepcounter(groups):
     """https://developer.android.com/guide/topics/sensors/sensors_motion#sensors-motion-stepcounter"""
-    return groups.apply(_count_steps).rename(
-        'steps_counter').to_frame()  # added .to_frame() to convert it from series to dataframe
+    return (groups.apply(_count_steps)
+            .rename('steps_counter')
+            .to_frame())  # added .to_frame() to convert it from series to dataframe
 
 
 def stepdetector(groups):
     """https://developer.android.com/guide/topics/sensors/sensors_motion#sensors-motion-stepdetector"""
-    return groups.size().rename(
-        'steps_detected_count').to_frame()  # added .to_frame() to convert it from series to dataframe
+    return (groups
+            .size()
+            .rename('steps_detected_count')
+            .to_frame())  # added .to_frame() to convert it from series to dataframe
 
 
 # =======================================================================================
@@ -262,7 +265,10 @@ def xyz_accuracy_scalar_feature(groups, prefix=''):
     return tmp.add_prefix(prefix)
 
 
-def on_change_feature(groups, sensor_df, sensor_name: str, column_name: str, states: list, prefix='',
+def on_change_feature(groups, sensor_df, sensor_name: str,
+                      column_name: str,
+                      states: list,
+                      prefix='',
                       unknown_state=None) -> pd.DataFrame:
     """compute features for on-change sensors, e.g., screen status.
     The method counts the seconds each state is active"""
@@ -319,12 +325,12 @@ def on_change_feature(groups, sensor_df, sensor_name: str, column_name: str, sta
             assert len(stats) <= 1
             stats = stats.reset_index()
             total_duration['episodes_count'] = stats.iloc[0]['size'] if len(stats) > 0 else 0
-            total_duration['mean_seconds_per_episode'] = stats.iloc[0]['mean'] if len(stats) > 0 else 0
-            total_duration['min_seconds_per_episode'] = stats.iloc[0]['min'] if len(stats) > 0 else 0
-            total_duration['max_seconds_per_episode'] = stats.iloc[0]['max'] if len(stats) > 0 else 0
-            total_duration['std_seconds_per_episode'] = stats.iloc[0]['std'] if len(stats) > 0 else 0
-            if pd.isna(total_duration['std_seconds_per_episode']):  # is NaN if only one episode
-                total_duration['std_seconds_per_episode'] = 0
+            total_duration['seconds_per_episode_mean'] = stats.iloc[0]['mean'] if len(stats) > 0 else 0
+            total_duration['seconds_per_episode_min'] = stats.iloc[0]['min'] if len(stats) > 0 else 0
+            total_duration['seconds_per_episode_max'] = stats.iloc[0]['max'] if len(stats) > 0 else 0
+            total_duration['seconds_per_episode_std'] = stats.iloc[0]['std'] if len(stats) > 0 else 0
+            if pd.isna(total_duration['seconds_per_episode_std']):  # is NaN if only one episode
+                total_duration['seconds_per_episode_std'] = 0
 
         # ==================
         # add time from the beginning of the window to the first sensor reading
@@ -333,7 +339,7 @@ def on_change_feature(groups, sensor_df, sensor_name: str, column_name: str, sta
             # get the opposite state with respect to the first sensor reading.
             # This applies to sensors like screen status
             # Warning: there are no guarantees that previous status was the opposite one.
-            # Sometimes there is a sequence of reading reporitng the same state.
+            # Sometimes there is a sequence of reading reporting the same state.
             previous_last_state = [s for s in states if s != gr.iloc[0][column_name]][0]
         else:
             # this branch is used by activitiespertime

@@ -1,9 +1,8 @@
-
-
-
 # Feature Engineering
 
-This repository contains the code to generate features from the raw data available on the [LivePeople data catalog](https://datascientiafoundation.github.io/LivePeople) powered by [Datascientia](https://datascientia.eu/). The following code has been tested on [DivesityOne dataset](https://datascientia.eu/projects/diversityone/).
+This repository contains the code to generate features from the raw data available on the [LivePeople data catalog](https://datascientiafoundation.github.io/LivePeople) 
+powered by [Datascientia](https://datascientia.eu/). 
+The following code has been tested on [DivesityOne dataset](https://datascientia.eu/projects/diversityone/).
 
 All features in this repository are extracted over **fixed-length time intervals**.
 
@@ -19,7 +18,7 @@ A sample test dataset is provided in the [`test/`](test) directory for quick exp
 ## Requirements
 
 - Python 3.9
-- Snakemake (for workflow automation)
+- [Snakemake](https://snakemake.readthedocs.io/en/stable/) (for workflow automation)
 
 ## Installation
 
@@ -80,9 +79,9 @@ Download the dataset (the datasets can be requested on the [Datascientia platfor
    
    - If the dataset follows the **Hierarchical structure** (as retrieved from the catalog), save it in the `data/CREP` folder. Datasets in this structure need to be flattened first by running the following script:
 
-    ```bash
+   ```bash
      python -m src.load -i data/CREP -o data/raw -l logs/load.log
-    ```
+   ```
 
 
 ## Workflow Description
@@ -165,6 +164,9 @@ python -m src.feature -i data/raw/<SENSOR>.parquet \
                       -ti False
 ```
 
+## Contribute
+
+Contributions welcome! Feel free to open a pull-request!
 
 ## Supported Datasets and Extracted Features
 
@@ -196,13 +198,10 @@ python -m src.feature -i data/raw/<SENSOR>.parquet \
   * [`magneticfielduncalibrated`](#magneticfielduncalibrated)
   * [`geomagneticrotationvector`](#geomagneticrotationvector)
 * [Motion](#motion)
-  * [`accelerometer`](#accelerometer-)
-  * [`accelerometeruncalibrated`](#accelerometeruncalibrated)
-  * [`linearacceleration`](#linearacceleration)
+  * [`accelerometer`, `gravity`, `gyroscope`, `linearacceleration`](#accelerometer-gravity-gyroscope-linearacceleration)
+  * [`accelerometeruncalibrated`, `gyroscopeuncalibrated`](#accelerometeruncalibrated-gyroscopeuncalibrated)
   * [`activities`](#activities)
-  * [`gravity`](#gravity)
-  * [`gyroscope`](#gyroscope)
-  * [`gyroscopeuncalibrated`](#gyroscopeuncalibrated)
+  * [](#)
   * [`stepcounter`](#stepcounter)
   * [`stepdetector`](#stepdetector)
   * [`touch`](#touch)
@@ -254,9 +253,12 @@ Source: [Encoding Cyclical Features](https://ianlondon.github.io/posts/encoding-
  - `airplanemode_True`, `airplanemode_False`
 
 ####   `applications`
-- `app_category_nunique`
-- `[application groups]`
-- `app_nunique`, `app_entropy_basic` 
+
+| Feature name                       | Type  | Description                               |
+|------------------------------------|-------|-------------------------------------------|
+| `app_category_nunique`             | count | number of distinct application categories |
+| `[application groups]`             |       |                                           |
+| `app_nunique`, `app_entropy_basic` |       |                                           | 
 
 ####   `headsetplug`
 - `headset_False`, `headset_True`
@@ -285,12 +287,18 @@ Source: [Encoding Cyclical Features](https://ianlondon.github.io/posts/encoding-
 - `doze_True`, `doze_False`
 
 ####   `ringmode`
-- `ringmode_mode_silent`, `ringmode_mode_normal`, `ringmode_mode_vibrate`
+
+| Feature name                                      | Type | Description |
+|---------------------------------------------------|------|-------------|
+| `ringmode_{mode_silent,mode_normal,mode_vibrate}` |      |             |
 
 ####   `screen`
 
-- `screen_SCREEN_ON`, `screen_SCREEN_OFF`, `screen_episodes_count`, 
-- `screen_mean_seconds_per_episode`, `screen_min_seconds_per_episode`, `screen_max_seconds_per_episode`, `screen_std_seconds_per_episode`
+| Feature name                                    | Type    | Description                                       |
+|-------------------------------------------------|---------|---------------------------------------------------|
+| `screen_{SCREEN_ON,screen_SCREEN_OFF}`          |         |                                                   |
+| `screen_episodes_count`                         | integer | number of episodes (i.e., screen ON and then OFF) | 
+| `screen_seconds_per_episode_{mean,min,max,std}` | float   | descriptive statistics of the episodes duration   |
 
 ### Position
 
@@ -345,13 +353,15 @@ Source: [Encoding Cyclical Features](https://ianlondon.github.io/posts/encoding-
 
 ### Motion
 
-#### `accelerometer` 
+#### `accelerometer`, `gravity`, `gyroscope`, `linearacceleration`
+
 - `x_min`, `x_max`, `x_mean`, `x_std`
 - `y_min`, `y_max`, `y_mean`, `y_std`
 - `z_min`, `z_max`, `z_mean`, `z_std`
 - `magnitude_min`, `magnitude_max`, `magnitude_mean`, `magnitude_std`
  
-####   `accelerometeruncalibrated`
+####   `accelerometeruncalibrated`, `gyroscopeuncalibrated`
+
 - `x_min`, `x_max`, `x_mean`, `x_std`
 - `y_min`, `y_max`, `y_mean`, `y_std`
 - `z_min`, `z_max`, `z_mean`, `z_std`
@@ -360,41 +370,34 @@ Source: [Encoding Cyclical Features](https://ianlondon.github.io/posts/encoding-
 - `zunc_min`, `zunc_max`, `zunc_mean`, `zunc_std`
 - `magnitude_min`, `magnitude_max`, `magnitude_mean`, `magnitude_std`
 
-####  `linearacceleration`
-- `x_min`, `x_max`, `x_mean`, `x_std`
-- `y_min`, `y_max`, `y_mean`, `y_std`
-- `z_min`, `z_max`, `z_mean`, `z_std`
-- `magnitude_min`, `magnitude_max`, `magnitude_mean`, `magnitude_std`
 
 ####  `activities`
 - `activity_Running` ,`activity_Unknown`, `activity_Tilting`, `activity_OnBicycle`, `activity_InVehicle`, `activity_Still`, `activity_Walking`, `activity_OnFoot`,
     
-####   `gravity`
+
+####  
 - `x_min`, `x_max`, `x_mean`, `x_std`
 - `y_min`, `y_max`, `y_mean`, `y_std`
 - `z_min`, `z_max`, `z_mean`, `z_std`
-- `magnitude_min`, `magnitude_max`, `magnitude_mean`, `magnitude_std`
-    
-####   `gyroscope`
-- `x_min`, `x_max`, `x_mean`, `x_std`
-- `y_min`, `y_max`, `y_mean`, `y_std`
-- `z_min`, `z_max`, `z_mean`, `z_std`
-- `magnitude_min`, `magnitude_max`, `magnitude_mean`, `magnitude_std`
-    
-####   `gyroscopeuncalibrated`
-- `x_min`, `x_max`, `x_mean`, `x_std`
-- `y_min`, `y_max`, `y_mean`, `y_std`
-- `z_min`, `z_max`, `z_mean`, `z_std`
-- `xunc_min`, `xunc_max`, `xunc_mean`, `xunc_std`
-- `yunc_min`, `yunc_max`, `yunc_mean`, `yunc_std`
-- `zunc_min`, `zunc_max`, `zunc_mean`, `zunc_std`
 - `magnitude_min`, `magnitude_max`, `magnitude_mean`, `magnitude_std`
 
+
 ####   `stepcounter`
-- `steps_counter` 
+
+See sensor description on [Android documentation](https://developer.android.com/guide/topics/sensors/sensors_motion#sensors-motion-stepcounter). 
+
+| Feature name    | Type  | Description             |
+|-----------------|-------|-------------------------|
+| `steps_counter` | count | number of counted steps | 
     
 ####   `stepdetector`
-- `steps_detected_count`
+
+See sensor description on [Android documentation](https://developer.android.com/guide/topics/sensors/sensors_motion#sensors-motion-stepdetector). 
+
+
+| Feature name           | Type  | Description              |
+|------------------------|-------|--------------------------|
+| `steps_detected_count` | count | number of detected steps |
 
 ####   `touch`
 - `touch_count` 
@@ -402,7 +405,12 @@ Source: [Encoding Cyclical Features](https://ianlondon.github.io/posts/encoding-
 ### Connectivity
 
 ####   `bluetooth`
-- `bluetooth_addr_nunique`, `bluetooth_mean`, `bluetooth_min`, `bluetooth_max`, `bluetooth_std`, `bluetooth_var`, `bluetooth_entropy_basic,`
+
+| Feature name                       | Type | Description |
+|------------------------------------|------|-------------|
+| `bluetooth_addr_nunique`           |      |             |
+| `bluetooth_{mean,min,max,std,var}` |      |             |
+| `bluetooth_entropy_basic`          |      |             |
 
 ####   `cellularnetwork`
 
