@@ -43,10 +43,7 @@ def get_x(path_to_sensors) -> pd.DataFrame:
     features_union = None
     for sensor_path in path_to_sensors:
         logger.info(f'load {sensor_path.name}')
-        sensors = pd.read_csv(
-            sensor_path,
-            parse_dates=['start_interval', 'end_interval']
-        )
+        sensors = pd.read_parquet(sensor_path)
         columns_to_exclude = sensors_config.get(sensor_path.stem, {}).get('columns_to_exclude')
         logger.info(f'exclude columns {columns_to_exclude}')
         if columns_to_exclude:

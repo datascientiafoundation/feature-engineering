@@ -15,22 +15,22 @@ rule process_timediary:
     input:
         "data/raw/timediary.parquet"
     output:
-        "data/interim/timediary.csv"
+        "data/interim/timediary.parquet"
     log:
         "logs/contribution.log"
     params:
         tag=config['timediary_tag']
     shell:
-        "python -m src.contribution -i {input} -o {output} -l {log} -t {params.tag}"
+        "python -m src.contribution -i {input} -o {output} -l {log} -t '{params.tag}'"
 
 
 rule process_feature:
     message: "compute intervals and then compute features"
     input:
         input_sensor="data/raw/{ds}.parquet",
-        timediary="data/interim/timediary.csv"
+        timediary="data/interim/timediary.parquet"
     output:
-        "data/interim/{ds}.csv"
+        "data/interim/{ds}.parquet"
     log:
         "logs/{ds}.log"
     params:
@@ -48,7 +48,7 @@ rule process_feature:
 rule join_features:
     message: "combine features of all sensors"
     input:
-        expand("data/interim/{ds}.csv", ds=sensors),
+        expand("data/interim/{ds}.parquet", ds=sensors),
     output:
         "data/processed/joined_features.csv"
     log:

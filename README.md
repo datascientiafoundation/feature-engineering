@@ -62,7 +62,7 @@ pip install snakemake
 │   ├── feature.py               # Script for performing feature engineering on a single dataset
 │   ├── join_features.py         # Script for merging/joining features from different sensors
 │   └── load.py                  # Script for loading datasets
-├── test/			 # Test dataset (input, output)
+├── test/			             # Test dataset (input, output)
 ├── CITATION.cff
 ├── environment.yml              # Conda environment configuration file
 ├── LICENCE                      # Contains the license information for the project (e.g., MIT License)
@@ -77,7 +77,7 @@ Download the dataset (the datasets can be requested on the [Datascientia platfor
    
    - If the dataset follows the **flattened structure**, save it in the `data/raw` folder.
    
-   - If the dataset follows the **Hierarchical structure** (as retrieved from the catalog), save it in the `data/CREP` folder. Datasets in this structure need to be flattened first by running the following script:
+   - If the dataset follows the **hierarchical structure** (as retrieved from the catalog), save it in the `data/CREP` folder. Datasets in this structure need to be flattened first by running the following script:
 
    ```bash
      python -m src.load -i data/CREP -o data/raw -l logs/load.log
@@ -127,18 +127,21 @@ You can process a single dataset using the [src/feature.py](src/feature) script 
 
 ```bash
 python -m src.feature -i data/raw/<SENSOR>.parquet \
-                      -t data/interim/timediary.csv \
-                      -o data/interim/<SENSOR>.csv \
+                      -t data/interim/timediary.parquet \
+                      -o data/interim/<SENSOR>.parquet \
                       -l logs/<SENSOR>.log \
                       -f <FREQ> \
                       -ti True
 ```
+
+To process single dataset without timediary, set `-ti False`.
+
 Example: 
 
 ```bash
 python -m src.feature -i data/raw/accelerometer.parquet \
-                      -t data/interim/timediary.csv \
-                      -o data/interim/accelerometer.csv \
+                      -t data/interim/timediary.parquet \
+                      -o data/interim/accelerometer.parquet \
                       -l logs/accelerometer.log  \
                       -f 30 \
                       -ti True
@@ -146,22 +149,11 @@ python -m src.feature -i data/raw/accelerometer.parquet \
 
  ## Workflow without timediary
 
-if you want to process datasets without timediary intervals, you can change the **timediary** 
+If you want to process datasets without timediary intervals, you can change the **timediary** 
 parameter in [config/config.yaml](config/config.yaml) to **False**. Then the run the workflow as: 
 
 ```bash
 snakemake all --cores 1
-```
-
-#### To process single dataset without timediary:
-
-```bash
-python -m src.feature -i data/raw/<SENSOR>.parquet \
-                      -t data/interim/timediary.csv \
-                      -o data/interim/<SENSOR>.csv \
-                      -l logs/<SENSOR>.log \
-                      -f <FREQ> \
-                      -ti False
 ```
 
 ## Contribute
@@ -169,6 +161,8 @@ python -m src.feature -i data/raw/<SENSOR>.parquet \
 Contributions welcome! Feel free to open a pull-request!
 
 ## Supported Datasets and Extracted Features
+
+A sample of the output data is accessible at [`test/data/processed/joined_features.csv`](test/data/processed/joined_features.csv).
 
 <!-- TOC -->
 * [Cyclical Feature Encoding](#cyclical-feature-encoding)
@@ -276,11 +270,13 @@ Source: [Encoding Cyclical Features](https://ianlondon.github.io/posts/encoding-
     
 ####   `batterylevel`
 
-| Feature name                                        | Type | Description |
-|-----------------------------------------------------|------|-------------|
-| `battery_level_first`, `battery_level_last`         |      |             |
-| `battery_scale_mean`                                |      |             |
-| `battery_delta`                                     |      |             |
+Sensor description on [Android documentation website](https://developer.android.com/training/monitoring-device-state/battery-monitoring#CurrentLevel)
+
+| Feature name                                        | Type    | Description                                                                                           |
+|-----------------------------------------------------|---------|-------------------------------------------------------------------------------------------------------|
+| `battery_level_first`, `battery_level_last`         | [0,100] | percentage of battery charge (scaled) of the phone at the first and last sensor reading of the window |
+| `battery_scale_mean`                                |         |                                                                                                       |
+| `battery_delta`                                     | [0,100] | difference between level_last and level_first                                                         |
 
     
 ####   `doze`
@@ -373,13 +369,6 @@ Source: [Encoding Cyclical Features](https://ianlondon.github.io/posts/encoding-
 
 ####  `activities`
 - `activity_Running` ,`activity_Unknown`, `activity_Tilting`, `activity_OnBicycle`, `activity_InVehicle`, `activity_Still`, `activity_Walking`, `activity_OnFoot`,
-    
-
-####  
-- `x_min`, `x_max`, `x_mean`, `x_std`
-- `y_min`, `y_max`, `y_mean`, `y_std`
-- `z_min`, `z_max`, `z_mean`, `z_std`
-- `magnitude_min`, `magnitude_max`, `magnitude_mean`, `magnitude_std`
 
 
 ####   `stepcounter`

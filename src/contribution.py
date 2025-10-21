@@ -10,11 +10,11 @@ from src.utils.utils import get_logger
 def main(input_path: Path, output_path: Path, tag: str):
     logger.info('Loading users\' contributions...')
     df = pd.read_parquet(input_path)
-    for col in ['instancetimestamp', 'answertimestamp', 'notificationtimestamp']:
+    for col in ['timestamp', 'answertimestamp', 'notificationtimestamp']:
         if not is_datetime64_any_dtype(df[col]):
             raise TypeError(f'column {col} is not a datetime64 dtype')
 
-    # filter out timediary questions
+    # filter out questions/answers based on the configure tag
     df = df[df['tag'] == tag]
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -23,8 +23,8 @@ def main(input_path: Path, output_path: Path, tag: str):
         logger.warning('Reset index, there are duplicates')
         raise ValueError()
 
-    assert (df.groupby(['userid', 'instancetimestamp']).size() == 1).all()
-    df.to_csv(output_path, index=False)
+    assert (df.groupby(['userid', 'timestamp']).size() == 1).all()
+    df.to_parquet(output_path, index=False)
 
 
 if __name__ == '__main__':

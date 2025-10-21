@@ -4,14 +4,14 @@ datasets:
 
 # whether time diary data should be included in feature generation.
 timediary: True
-# the tag value associated to time diares in the dataset (i.e., value used in tag column in timediary.parquet)
-timediary_tag: Time Diaries
+# the tag value associated to time diaries in the dataset (i.e., value used in _tag_ column in timediary.parquet)
+timediary_tag: "time_diary"
 
 # aggregation window size in minutes
 # - it timediary: True, then the window size w is taken with respect to the timediaries timestamp
 #   (e.g., if w=30 minutes, then time window spans from 15 minutes before to 15 minutes after a time diary timestamp.
 #
-#-	if timediary: False, then the entire sensor data timeline is divided into consecutive, non-overlapping intervals
-# of fixed length. For example, if `freq` is set to 30 minutes, intervals like [10:00–10:30), [10:30–11:00), and so on are created. Sensor events are assigned to these intervals based on their timestamps, and features are aggregated accordingly.
+# -	if timediary: False, then the entire sensor data timeline is divided into consecutive, non-overlapping intervals
+#   of fixed length. For example, if `freq` is set to 30 minutes, intervals like [10:00–10:30), [10:30–11:00), and so on are created. Sensor events are assigned to these intervals based on their timestamps, and features are aggregated accordingly.
 freq: 30
 

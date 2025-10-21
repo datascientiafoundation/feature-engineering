@@ -1,5 +1,4 @@
 import os
-import os
 import time
 from pathlib import Path
 
@@ -17,7 +16,7 @@ def compute_windows_intervals(contribution: pd.DataFrame, window_size_mins: int)
     start_interval = contribution[timestamp].dt.floor('s') - pd.Timedelta(minutes=int(window_size_mins / 2))
     end_interval = contribution[timestamp].dt.floor('s') + pd.Timedelta(minutes=int(window_size_mins / 2))
     intervals = pd.IntervalIndex.from_arrays(start_interval, end_interval, closed='left')
-    # if closed is change, remember to do the same in every place tha interval is used
+    # if closed is changed, remember to do the same in every place tha interval is used
     assert not intervals.is_overlapping
     return intervals
 
@@ -69,14 +68,11 @@ def cellularnetwork(groups):
 def wifi(groups):
     ft = groups.agg(wifi_is_connected=('isconnected', max))
     ft['wifi_is_connected'].fillna(False, inplace=True)
-
     ft['wifi_is_connected'] = ft['wifi_is_connected'].astype(float)
-
     return ft
 
 
 def wifinetworks(groups):
-    # wifi_num_of_devices,
     return groups.agg(
         num_of_devices=('address', lambda x: len(np.unique(x))),
         mean_rssi=('rssi', np.mean),
@@ -162,18 +158,17 @@ def notification(groups):
     return groups.status.value_counts().unstack()
 
 
-# error_keys = set() #added
 def application(groups):
     def _get_app_category(apps, category_db) -> pd.Series:
         categories = set()
         apps = apps.unique()
         for a in apps[apps != None]:
-            try:  # added
+            try:
                 categories.add(category_db.loc[a, 'category'])  # change: genre -> category
-            except KeyError as e:  # added
-                # error_keys.add(a) #added
+            except KeyError as e:
+                # error_keys.add(a)
                 # logger.warning(e)
-                categories.add('app_not-found')  # added
+                categories.add('app_not-found')
 
         d = {k: 1 for k in categories}
         d['category_nunique'] = len(categories)
@@ -217,7 +212,9 @@ def batterymonitoringlog(groups):
 
 
 def value_feature(groups, column_name, prefix=''):
-    return groups[column_name].agg([np.mean, np.std, np.min, np.max]).add_prefix(prefix)
+    return (groups[column_name]
+            .agg([np.mean, np.std, np.min, np.max])
+            .add_prefix(prefix))
 
 
 def xyz_feature(groups, prefix=''):
@@ -377,7 +374,7 @@ def on_change_feature(groups, sensor_df, sensor_name: str,
 
     duration_per_group = pd.concat(duration_per_group, axis=1).T
     duration_per_group = duration_per_group.set_index(['userid', 'experimentid', 'interval'], verify_integrity=True)
-    # states that are not observed in a window to zero
+    # set states that are not observed in a window to zero
     duration_per_group[states] = duration_per_group[states].fillna(0)
 
     # assert that total duration is not longer than the window size
@@ -387,7 +384,7 @@ def on_change_feature(groups, sensor_df, sensor_name: str,
     return duration_per_group.add_prefix(prefix)
 
 
-def main(input_path: Path, input_timediary: Path, output_path: Path, window_size_mins: int, timediary_include: bool):
+def main(input_path: Path, input_timediary: Path, output_path: Path, window_size_mins: int, timediary_included: bool):
     sensor_name = input_path.stem
     sensor_name = sensor_name.replace('event', '')
     logger.info(f"Start feature generation sensor={sensor_name}")
@@ -412,11 +409,10 @@ def main(input_path: Path, input_timediary: Path, output_path: Path, window_size
         sensor.source.replace(np.nan, 'no_charging', inplace=True)
 
     # Check timediary
-    if timediary_include:
+    if timediary_included:
         logger.info('Loading time diary...')
-        tddf = pd.read_csv(input_timediary,
-                           parse_dates=['timestamp', 'notificationtimestamp', 'answertimestamp'])
-        tddf['timestamp'] = tddf['timestamp'].dt.tz_localize(None)  # Removes the timezone
+        tddf = pd.read_parquet(input_timediary)
+        #tddf['timestamp'] = tddf['timestamp'].dt.tz_localize(None)  # Removes the timezone
     else:
         logger.warning('Time diary is missing or empty. Will compute intervals from sensor data.')
         tddf = None
@@ -426,7 +422,7 @@ def main(input_path: Path, input_timediary: Path, output_path: Path, window_size
     for user in user_ids:
         logger.info(f'user={user}')
         sensor_user = sensor[sensor.userid == user].copy()
-        if timediary_include:
+        if timediary_included:
             td_user = tddf[tddf.userid == user]
             intervals = compute_windows_intervals(td_user, window_size_mins)
         else:
@@ -564,4 +560,4 @@ if __name__ == '__main__':
          input_timediary=Path(args.timediary),
          output_path=Path(args.output),
          window_size_mins=args.window_size,
-         timediary_include=args.timediary_include == 'True')
+         timediary_included=args.timediary_include == 'True')
