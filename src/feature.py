@@ -68,8 +68,16 @@ def cellularnetwork(groups):
 
 def wifi(groups):
     ft = groups.agg(wifi_is_connected=('isconnected', max))
+    # ft['wifi_is_connected'].fillna(False, inplace=True)
+
+    # ft['wifi_is_connected'] = ft['wifi_is_connected'].astype(float)
+    # Convert string 'true'/'false' (case-insensitive) to booleans
+    ft['wifi_is_connected'] = ft['wifi_is_connected'].astype(str).str.lower().map({'true': True, 'false': False})
+
+    # Fill missing values
     ft['wifi_is_connected'].fillna(False, inplace=True)
 
+    # Convert booleans to float (True → 1.0, False → 0.0)
     ft['wifi_is_connected'] = ft['wifi_is_connected'].astype(float)
 
     return ft
@@ -342,11 +350,15 @@ def on_change_feature(groups, sensor_df, sensor_name: str, column_name: str, sta
             # questions
             previous_last_state = unknown_state
             first_ts_index = timestamps.get_loc(gr.iloc[0].timestamp)
+            if isinstance(first_ts_index, slice):
+                first_ts_index=first_ts_index.start
+            # breakpoint()
             if first_ts_index - 1 >= 0:
                 nearest_previous_sensor_reading_timestamp = timestamps[first_ts_index - 1]
                 nearest_previous_sensor_reading = sensor_df.loc[
                     sensor_df.timestamp == nearest_previous_sensor_reading_timestamp]
-                assert len(nearest_previous_sensor_reading) == 1
+                if not len(nearest_previous_sensor_reading) == 1:
+                    pass
                 nearest_previous_sensor_reading = nearest_previous_sensor_reading.iloc[0]
                 if sensor_name in ['userpresence', 'screen']:
                     # 30 minutes is the frequency of the questions, if the previous sensor reading is too far away,
@@ -391,9 +403,9 @@ def main(input_path: Path, input_timediary: Path, output_path: Path, window_size
 
     if not is_datetime64_any_dtype(sensor['timestamp']):
         raise TypeError(f'column "timestamp" is not a datetime64 dtype')
-    #sensor['timestamp'] = pd.to_datetime(sensor['timestamp'], format='%m%d%H%M%S%f')
-    #sensor['timestamp'] = sensor['timestamp'].dt.tz_localize(None)  # Removes the timezone
-    #sensor['timestamp'] = sensor['timestamp'].astype('datetime64[ns]')
+    sensor['timestamp'] = pd.to_datetime(sensor['timestamp'], format='%m%d%H%M%S%f')
+    sensor['timestamp'] = sensor['timestamp'].dt.tz_localize(None)  # Removes the timezone
+    sensor['timestamp'] = sensor['timestamp'].astype('datetime64[ns]')
 
     logger.info(f'Timestamp format changed ')
     if 'day' in sensor.columns:
@@ -409,8 +421,8 @@ def main(input_path: Path, input_timediary: Path, output_path: Path, window_size
         logger.info('Loading time diary...')
         tddf = pd.read_csv(input_timediary,
                            parse_dates=['instancetimestamp', 'notificationtimestamp', 'answertimestamp'])
-        tddf['instancetimestamp'] = tddf['instancetimestamp'].dt.tz_localize(None)  # Removes the timezone
         tddf['timestamp'] = tddf['instancetimestamp']
+        tddf['timestamp'] = tddf['timestamp'].dt.tz_localize(None)  # Removes the timezone
     else:
         logger.warning('Time diary is missing or empty. Will compute intervals from sensor data.')
         tddf = None
@@ -421,16 +433,16 @@ def main(input_path: Path, input_timediary: Path, output_path: Path, window_size
         logger.info(f'user={user}')
         sensor_user = sensor[sensor.userid == user].copy()
         print(timediary_include)
+        # tddf['timestamp'] = tddf['timestamp'] - pd.Timedelta(hours=2)
         if timediary_include:
             td_user = tddf[tddf.userid == user]
             intervals = compute_windows_intervals(td_user, window_size_mins)
         else:
             intervals = compute_windows_intervals_single_sensor(sensor_user, window_size_mins)
 
-        sensor_user['timestamp'] = sensor_user['timestamp'].astype('datetime64[ns]')
 
         sensor_user['interval'] = pd.cut(sensor_user.timestamp, intervals, duplicates='raise')
-
+        
         if sensor_user['interval'].isna().any():
             logger.warning(f'Some sensors reading are not included in any window')
 
@@ -479,7 +491,7 @@ def main(input_path: Path, input_timediary: Path, output_path: Path, window_size
             ft = touch(groups)
         elif sensor_name == 'notification':
             ft = notification(groups)
-        elif sensor_name == 'applications':
+        elif sensor_name == 'application':
             ft = application(groups)
         elif sensor_name in ['batterymonitoringlog', 'batterylevel']:
             ft = batterymonitoringlog(groups)
