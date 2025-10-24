@@ -10,12 +10,17 @@ from src.utils.utils import get_logger
 def main(input_path: Path, output_path: Path):
     logger.info('Loading users\' contributions...')
     df = pd.read_parquet(input_path)
+    df.rename(columns={'timestamp': 'instancetimestamp'}, inplace=True)
+    df['answertimestamp'] = df['answertimestamp'].fillna(df['notificationtimestamp'])
     for col in ['instancetimestamp', 'answertimestamp', 'notificationtimestamp']:
         if not is_datetime64_any_dtype(df[col]):
-            raise TypeError(f'column {col} is not a datetime64 dtype')
+            df[col] = df[col].fillna(df['notificationtimestamp'])
+            # raise TypeError(f'column {col} is not a datetime64 dtype')
 
     # filter out timediary questions
+    df['tag'] = df['tag'].replace('daily_question','Time Diaries')
     df = df[df['tag'] == 'Time Diaries']
+    # df['instancetimestamp'] = df['instancetimestamp'] - pd.Timedelta(hours=2)
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     assert len(df) != 0
