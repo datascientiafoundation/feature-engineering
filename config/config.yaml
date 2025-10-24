@@ -1,40 +1,41 @@
 # list of sensors for which features are calculated
 datasets:
- - accelerometer
- - accelerometeruncalibrated
+ # - accelerometer
+ # - accelerometeruncalibrated
  - activities
- - airplanemode
- - ambienttemperature
- - applications
- - batterycharge
- - batterylevel
+ # - airplanemode
+ # - ambienttemperature
+ - application
+ # - batterycharge
+ # - batterylevel
  - bluetooth
  - cellularnetwork
- - doze
- - geomagneticrotationvector
- - gravity
- - gyroscope
- - gyroscopeuncalibrated
- - headsetplug
- - light
- - linearacceleration
+ # - doze
+ # - geomagneticrotationvector
+ # - gravity
+ # - gyroscope
+ # - gyroscopeuncalibrated
+ # - headsetplug
+ # - light
+ # - linearacceleration
  - location
- - magneticfield
- - magneticfielduncalibrated
- - music
+ # - magneticfield
+ # - magneticfielduncalibrated
+ # - music
  - notification
- - orientation
- - pressure
+ # - orientation
+ # - pressure
  - proximity
- - relativehumidity
- - ringmode
- - rotationvector
+ # - relativehumidity
+ # - ringmode
+ # - rotationvector
  - screen
  - stepcounter
- - stepdetector
+ # - stepdetector
 # - survey
 # - timediary
  - touch
+ # - userpresence
  - wifi
  - wifinetworks
 
@@ -47,5 +48,5 @@ timediary: True
 #
 #-	if timediary: False, then the entire sensor data timeline is divided into consecutive, non-overlapping intervals
 # of fixed length. For example, if `freq` is set to 30 minutes, intervals like [10:00–10:30), [10:30–11:00), and so on are created. Sensor events are assigned to these intervals based on their timestamps, and features are aggregated accordingly.
-freq: 30
+freq: 10
 
