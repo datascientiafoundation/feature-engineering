@@ -50,7 +50,7 @@ def get_x(path_to_sensors) -> pd.DataFrame:
         columns_to_exclude = sensors_config.get(sensor_path.stem, {}).get('columns_to_exclude')
         logger.info(f'exclude columns {columns_to_exclude}')
         if columns_to_exclude:
-            sensors.drop(columns_to_exclude, inplace=True)
+            sensors.drop(columns_to_exclude, inplace=True, errors='ignore')
         types_dict = {'userid': int, 'experimentid': str}
         for col, col_type in types_dict.items():
             sensors[col] = sensors[col].astype(col_type)
