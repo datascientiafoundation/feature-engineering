@@ -10,15 +10,20 @@ from src.utils.utils import get_logger
 def main(input_path: Path, output_path: Path, tag: str):
     logger.info('Loading users\' contributions...')
     df = pd.read_parquet(input_path)
-    for col in ['timestamp', 'answertimestamp', 'notificationtimestamp']:
+    for col in ['timestamp', 'answertimestamp', 'notificationtimestamp', 'instancetimestamp']:
+        if col not in df.columns:
+            continue
         if not is_datetime64_any_dtype(df[col]):
             raise TypeError(f'column {col} is not a datetime64 dtype')
 
+    # rename column when working on DiversityOne
+    df = df.rename(columns={"instancetimestamp": "timestamp"}, errors="ignore")
     # filter out questions/answers based on the configure tag
     df = df[df['tag'] == tag]
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    assert len(df) != 0
+    if len(df) == 0:
+        raise ValueError('Time diaries are empty. Is the question tag configured?')
     if df.index.has_duplicates:
         logger.warning('Reset index, there are duplicates')
         raise ValueError()

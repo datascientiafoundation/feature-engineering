@@ -1,11 +1,11 @@
 # list of sensors for which features are calculated
 datasets:
- - accelerometer
+ - bluetooth
 
 # whether time diary data should be included in feature generation.
 timediary: True
 # the tag value associated to time diaries in the dataset (i.e., value used in _tag_ column in timediary.parquet)
-timediary_tag: "time_diary"
+timediary_tag: "Time Diaries"
 
 # aggregation window size in minutes
 # - it timediary: True, then the window size w is taken with respect to the timediaries timestamp

@@ -4,7 +4,8 @@ from snakemake.io import expand
 configfile: "config/config.yaml"
 
 files_to_ignore = ['survey',
-                   'timediary']
+                   'timediary',
+                   'timediaries']
 
 sensors = config['datasets']
 
@@ -13,9 +14,9 @@ sensors = [ds for ds in sensors if ds not in files_to_ignore]
 rule process_timediary:
     message: "load time diaries"
     input:
-        "data/raw/timediary.parquet"
+        "data/raw/timediaries.parquet"
     output:
-        "data/interim/timediary.parquet"
+        "data/interim/timediary/timediaries.parquet"
     log:
         "logs/contribution.log"
     params:
@@ -28,7 +29,7 @@ rule process_feature:
     message: "compute intervals and then compute features"
     input:
         input_sensor="data/raw/{ds}.parquet",
-        timediary="data/interim/timediary.parquet"
+        timediary="data/interim/timediary/timediaries.parquet"
     output:
         "data/interim/{ds}.parquet"
     log:
